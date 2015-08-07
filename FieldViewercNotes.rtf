@@ -1,0 +1,1071 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;\f2\fnil\fcharset0 Menlo-Regular;
+}
+{\colortbl;\red255\green255\blue255;\red28\green0\blue207;\red63\green110\blue116;}
+\margl1440\margr1440\vieww10960\viewh11840\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 FieldViewer\
+\
+I need an application to visualize three dimensional vector and scalar fields\
+represented by grids of data from COMSOL.\
+\
+I need to start by trying to get a basic application working in Xcode 5 using\
+wxWidgets3. I start with my notes from getting SoundTest up and running.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs20 \cf0 \
+What are the chances that I have now learned enough to get Xcode to work?\
+So here is what I have done\
+1) Created a new cocoa project.\
+2) copied the Srcs directory into it.\
+3) Removed the template source code and added in the 21 files that make up my source\
+(everything in sources except DlgTemplate, docview, SoundView, & SoundViewAdd)\
+4) Set target SDK to 10.7\
+5) Added the include directories. This was hard. They are easy to copy into the slots in the add\
+page but if you dismiss the add page they disappear. I got them to persist by calling Run while\
+the add page was still open.\
+6) Fixed a few minor warnings for form's sake.\
+7) Added cocoa, carbon, IOKit, AudioToolkit, pthreads to the libraries.\
+8) Built\
+\
+So here goes.\
+1) That got me a folder called FieldViewer which contains three items,\
+FieldViewer.xcodeproj and two folders, FieldViewer and FieldViwerTests.\
+The inner FieldViewer in turn contains the default sources and a plist.\
+\
+2) I added the source directory copied from BCDocViewDemo to the upper\
+FieldViewer folder and I moved this notes file to the same level.\
+\
+3) In the project I deleted the references to the .h, .m, and .xib files\
+and added the entire Sources directory.\
+\
+4) I set the SDK to 10.8, which is what I am using.\
+\
+5) Hm, OK, which include directories??\
+$(SRCROOT)/../wxWidgets-3.0.0/include/wx\
+\
+I put them in both Header paths and User paths.\
+I still get not found "wx/wxprec.h".\
+Changed to \
+/Users/bcollett/Development/wx/wxWidgets-3.0.0/include\
+\
+and now I get setup.h not found. It lives in a really silly place so \
+I have to add\
+/Users/bcollett/Development/wx/wxWidgets-3.0.0/build-cocoa-llvm-debug/lib/wx/include/osx_cocoa-unicode-3.0\
+\
+whereupon I get a ton of issues because it IS finding stuff. It starts\
+by telling me that wx is not configured, which is a bit of a bummer.\
+Actually, it seems to mean that I have not defined -D__WXOSX_COCOA__\
+to tell it what to do. I added\
+__WXOSX_COCOA__=1\
+to preprocessor macros.\
+Now it compiles and I just get a VAST list of linker errors.\
+\
+6) I don't seem to have any warnings.\
+\
+7) First I need to tell it where the libraries are and what to use.\
+I found the wx libs and added them but I seem to need some more Frameworks\
+and I can't figure out how to add them. They are stored INSIDE Xcode\
+and Add Files\'85 won't navigate inside a Bundle. I seem to have accidentally\
+added the Xcode bundle and now I am stuck with the spinning beach ball.\
+Force-quit and restart. Now it hangs trying to load FieldViewer.\
+It made it back. I am trying to delete Xcode.\
+Aha! You have to go to "Build Phases" and expand "Link Binary with Libraries"\
+and then the + button at the bottom will let you add Frameworks.\
+I add AGL and OpenGL and IOKit. Fewer errors. \
+I added Carbon and got fewer still. I seem to need a C++ library now.\
+LibC++.dylib is not it.\
+Aha, need libstdc++.dylib and libstdc++.6.dylib (other is gcc, these are \
+CLang).\
+Most remaining errors are of the form\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li240\fi-240\pardirnatural
+
+\f2\fs22 \cf0 "non-virtual thunk to wxTextCtrl::Copy()", \
+which the web seems to think have to do with a shift in which\
+SDK the app is being built for compared to the version of wx.\
+Actually, I think that the real underlying issue is that there\
+are two sets of compilers and I fear that my wx is partly built\
+by one and partly by the other.\
+\
+Let's start over with a clean copy of wxwidgets3.\
+I am going to put this copy in the trash and unpack a new one. Done.\
+\
+I opened build/osx/wxcocoa.xcodeproj in Xcode 5 and selected the\
+dylib target and ran build. It gave some warnings but built a\
+library! It put it in\
+/Users/bcollett/Library/Developer/Xcode/DerivedData/wxcocoa-drtcolxacmpumqefocouidbhomso/Build/Products/Debug/libwx_osx_cocoa.dylib\
+
+\f1\fs20 \
+Lord only knows what that long letter string is there for!\
+\
+\
+OK, so back to FieldViewer.\
+Removed the old libs and replaced with the new .dylib (have to use Library\
+link in left panel as Library does not appear in bcollett directory).\
+Now we've lost setup.h. It is now in\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 /Users/bcollett/Development/wx/wxWidgets-3.0.0/build/osx/setup/cocoa/include\
+Reset user header search.\
+I have all sorts of config errors. I have copied in the wxcocoa.xcconfig\
+file without getting any change. I copied the stuff from the pre-processor\
+defines of the wxcocoa project and that didn't help either.\
+\
+Gaarh! Start over with a new project. I fear that I deleted the real\
+config files right at the start of the process. I need to be more\
+careful in what I throw away.\
+Nope that did not get me config files.\
+\
+I edited in the config flags by hand and things compiled. I added the\
+dylib and I am still stuck with thunk issues!\
+Have to compare settings very carefully.\
+\
+All the thunk issues are with TextCtrl methods called from the vtable\
+for MyWindow. There is almost certainly a way round that.\
+I implemented empty LoadObject and SaveObject methods in ESDoc and I \
+replaced MyWindow by a generic wxTextCtrl. It now COMPILES!\
+\
+It does not RUN, the .dylib won't load (says it can't be found).\
+\
+OK, so build the static library and use that.\
+That is better. Now I have to add a bunch of frameworks and the libz \
+library (that one gets symbols like adler32 and inflaterect.)\
+\
+Now I get a window! And I can open text windows and close them and\
+quit the app. This looks MUCH more hopeful! And I prefer static linking\
+anyhow.\
+\
+OK, so SAVE THIS as it is. Renamed copy to BCDocViewer.\
+\
+Double-clicking on the project still opens the OLD Xcode! Open from in\
+new Xcode.\
+Let's see what we want this to do.\
+1) The initial window should be a text log window so I can write debugging\
+info to it.\
+2) The other window that we want will be an OpenGL window. My thought is\
+to put all my views onto rectangles displayed in OpenGL. I will probably\
+need to do the views as textures (argh, something new to learn). I see\
+no reason for the second window not to be a real document window. The\
+file menu will want Open but NOT New. A little more thought suggests that\
+the main document will probably be a representation of the model system\
+probably in my .gla format. Once you have a model you will be able to\
+load fields into it. That way you can visualize the relationship between\
+a field and the model it is intended to come from.\
+\
+\
+Let's see if we can make these changes, along with some renaming. I also\
+see that the system currently uses a wxDocMDIParentFrame. This seems to\
+be a bad idea. I do not want a MDI structured system (designed to deal\
+with Windows' lack of a main menu bar). I just want a wxDocParentFrame\
+for the SDI model of independent windows.\
+\
+I think that I have managed to change all the Class names to FieldViewer\
+based names. I have still have the whole MyCanvas and CreateCanvas issue\
+and I still have a main frame without any contents.\
+Interestingly, CreateCanvas does not seem to be being called. The window\
+created by New gets its text control guts some other way. Removing refs\
+to MyCanvas seems to have no consequence.\
+\
+FieldViewerView calls on the App to create its child frame. It just\
+creates a generic DocChildFrame. FieldViewerView then creates a generic\
+TextCtrl and installs that in the Frame. This means that MainFrame or the\
+app can install something into the MainFrame in the same way. I added\
+code to App to create a TextCtrl installed in the MainFrame and the\
+frame promptly turned into a text control! I am making it Readonly so\
+that it will not respond to the keyboard and linking it to the logging\
+mechanism through a wxLogTextCtrl. Beautiful! I can now write messages\
+to the log window.\
+\
+2/19/14\
+Now the opposite of this would be changing the code in FieldViewerView\
+to use a form of GLAView instead of a text view for its contents. That \
+means I should go _find_ GLAView and see what state it is in.\
+Well, it appears that I have a GLFrame that will need to be brought in\
+in place of the generic DocChildFrame that I currently use. It provides\
+menu handling for the tool menu. At the moment the App creates a toolbar\
+and installs it in the DocChildFrame when it Creates it. I realize that\
+I don't know who is actually handling the messages from the menu.\
+After a 15 call trip through the guts of event processing it ends up at\
+the DocManager's OnFileNew handler which eventually constructs a \
+FieldViewer and that gets the App to create a window.\
+Hm, I appear to need MouseTool, GLMouseTool, and ESViewerCanvas in their\
+entirety and probably ESViewFrame. The ES versions need to be renamed to\
+plain GL versions.\
+Aagh! I have had to bring in the geometry system and it seems to be a bit\
+of a mess. There are problems with header loops leading to lots and lots\
+of undefined classes. The overall notation is a bit weird too. I thought\
+I had redone this a while ago but I find little sign of it here.\
+Aha! This apparently came from an older version. I found the newer\
+version in Development/SIMS/SimulatorActive.\
+After a lot of fiddling with the GL classes and their relation to the\
+FieldViewer classes I have the thing compiling but I am getting Deprecated\
+messages for wxGLCanvas and learn that I am supposed to create the canvas\
+a different way now.\
+Oh dear, this has gotten to be a bit of a mess with too many layers of\
+classes for my frugal taste. What do I need?\
+\
+I need an App that owns the Log window and the DocManager.\
+\
+I need a document that is really pretty specialized. It needs to understand\
+about models and fields and field sections. It almost certainly has\
+menus to support interaction with user. I am NOT clear where they live--\
+probably on the views.\
+\
+I need a viewer that owns a frame containing an OpenGL view in which to\
+render the document's data.\
+It needs a Frame that supports a Tool menu to allow the user to\
+manipulate the view parameters. At least at the moment that Frame needs\
+only to support a single pane.\
+That pane needs to be a GLCanvas to handle the display. It needs to be \
+MORE than a GLCanvas to know that there is a Viewer out there that can\
+render information for it.\
+\
+I don't, at least initially, see a need for a multi-layer scheme with\
+FieldViewer classes based on GLView classes for every class.\
+\
+So I need a GLView that is a GLCanvas but I don't think I need a FieldView\
+above that.\
+I need a GLFrame to holds the GLView but I am not clear that I need a\
+FieldFrame above that.\
+I do need both a GLViewer (so that GLView can know about us) as well as\
+a FieldViewer.\
+\
+I am first going to try to get rid of MainFrame and replace it by a\
+generic wxDocParentFrame. Done, MainFrame is GONE.\
+\
+Now working on the View and canvas problem. \
+Things stalled on an attempt by the frame to install its Tool menu. This\
+failed because I moved away from having the App construct the GLFrame\
+and let the View do it for itself. But that way NO-ONE  was building\
+a menu bar for the new frame! No that turned out not to be true. The\
+issue was a really weird one. The View seemed to know where the Frame\
+was but attempting to call through the View to get the Frame to insert\
+the tool menu failed with an apparently incorrect pointer in mFrame. \
+Allowing the GLCanvas to call through to the Frame directly worked and\
+I got a window, albeit one without anything in it.\
+\
+OK, there is nothing in it because the there was no context. GetContext\
+in OnPaint fails. And is apparently deprecated. I removed the check on\
+the context and got a regular GL window. There's nothing in it at the\
+moment though.\
+I uncommented the axis drawing code and got a little tiny set of axes down\
+in the bottom left corner of the view. The tools are not working properly.\
+They check fine but don't uncheck and don't uncheck each other. Moreover,\
+they don't do anything.\
+The tools don't seem to be set up properly. The mouse action routines\
+are calling through directly to MResponder not to the tools.\
+\
+2/20/14\
+I think that there is an issue with the menu bar belonging to the frame.\
+I don't think that the events propagate DOWN from the frame to the Canvas.\
+This suggests moving the tools and the menu support up into the Frame\
+and using Canvas as the Responder for the tools.\
+This makes problems. The Frame is a great place to do all the menu\
+handling EXCEPT for the actual tool selection. The canvas owns the tools\
+(as it should) and the Frame has no simple way to tell the Canvas to\
+switch tools. I think that the easy solution is to get rid of the\
+individual tools and instead keep an array of tools with a tool selector\
+that the Frame can access.\
+AHA! Tools now work and adjust the GL view in the correct fashion. This\
+might be a time to save this as GLBaseApp.\
+\
+Done. Now to upgrade to a GLAViewer.\
+Aaagh. Well converting the Scanner back to ordinary I/O from the CArchive\
+stuff that it was using took WAY more time than it should have. But I\
+now have it reading in GLA models. This is not what it is finally supposed\
+to do but it is worth benchmarking here. Save a copy and rename to\
+wxGLAViewer.\
+\
+OK, then I added a cylinder primitive to GLA and was able to build a very\
+simple model of the aCORN mirror (one cylinder, one wire).\
+\
+Now I need to worry about fields. The first two kinds of field model to\
+worry about are those that come direct from COMSOL. Those are either 2D\
+or 3D grids of field values. I MUST have something that can read this\
+sort of thing left over from my work the first time.\
+Maybe not, but I did just write a COMSOL reader a week or so ago. That\
+ought to be a place to start. It looks as though it will take a little\
+bit of work to extract the reader but not much. It reads the data into\
+a set of arrays. I figured out how to extract the array structure from\
+each (oddly it is NOT explicitly stored in the file). Now I need to work\
+on finding the corners around any point in space.\
+\
+2/21/14\
+I found the COMSOLReader program and moved it to the Mac where it ran\
+perfectly. But all it does is read data into a set of arrays and, if\
+you want, figure out how many values each takes. What I then need is to\
+upgrade it to output that information and impose indexing on the arrays.\
+Finally, I need to be able to supply it a set of coordinates and have\
+it return the value of any of the components at this coordinates.\
+Start by moving analysis code into the COMSOLReader class from the main\
+program and providing methods to access the info. Analysis merged.\
+Now to test indexing. Start with GetValueAt(int dim, int index[3]).\
+I find that \
+index = 
+\f2\fs22 \CocoaLigature0 (index[\cf2 2\cf0 ]*\cf3 mRange\cf0 [\cf2 1\cf0 ].\cf3 mNVal\cf0 +index[\cf2 1\cf0 ])*\cf3 mRange\cf0 [\cf2 0\cf0 ].\cf3 mNVal\cf0 +index[\cf2 0\cf0 ];\
+and that that works for various different kinds of 2D and 3D slice.\
+\
+Now 
+\f1\fs20 \CocoaLigature1 GetValueAt(int dim, double coord[3]) needs to translate its real coords\
+into indices and then to do some kind of averaging to find the actual\
+values. Translation works and has been made safe with careful range checks\
+and returning a NaN for an invalid coordinate triplet.\
+\
+What do I want to do about interpolation? True linear interpolation is\
+defined and unique on tetrahedra but not on cubes. My attempts to find\
+a higher order interpolation that is defined and obeys Maxwell's equations\
+on a cube have not met with success. It looks as though straight tri-linear\
+interpolation is the way to go. It is smooth across boundaries (though its\
+gradient is not).\
+\
+Oh, and Fred wants this in C not C++ so I have some translation to do. I\
+don't think it will be very difficult though. Start with translating the\
+I/O back to C style. Whew, a very fiddly but very straightforward task.\
+The whole class is now running in C.\
+\
+2/22/14\
+So I need to implement tri-linear interpolation. That means that I need\
+to locate the eight points surrounding a single point. The only way to see\
+that this is working is to incorporate the COMSOLData into FieldViewer\
+and then to read in some points and to visualize them and their surrounding\
+boxes. Actually, that is not true. We can do a check that a point is within\
+a box. Add the check (temporarily) to GetValueAt.\
+OK, to do testing I need a random number generator. I should be able to\
+steal a really good one from Simulate. I have checked more than 1,000,000\
+points and all is good. Tests run in all three test files.\
+OK, so we can find the cube that surrounds a given point. Now what do we\
+do with it? I guess that I need to construct all eight indices and then\
+use them to pull the data. Then the interpolation is rather straightforward.\
+\
+I have been very careful so far to keep this set of routines very general. \
+It is able to handle COMSOL data with any number of dimensions and with\
+any number of data fields. Going forward this is more general than I\
+need. I am interested only in data files containing either a scalar field\
+or a vector field. That file, in turn, can cover either two or three\
+space dimensions. For Fred's work I only need 3D COMSOL E fields and\
+possibly 2D central sections that get treated as 3D. The processing for\
+these two kinds of field is SO different that I think I should abandon\
+generality and create two more specific sets of functions that USE the\
+general form to do their file I/O and then impose their own structure\
+on the results. So we will have a COMSOLData3D system and COMSOLData2D\
+system. They get COMSOLData to parse the incoming file and then examine\
+the results and see if they fit their format. Once you know the format\
+you can throw away quite a bit of the complexity. For example, the indexing\
+processing is unique for 2D and for 3D data and I can get away from the\
+careful partitioning of active and inactive dimensions.\
+This means that I save the present CONSOLReader and start a new \
+COMSOLReader2 system.\
+\
+If I am going to have sub-classes then, since I don't actually have C++\
+available (to please Fred) I need to play games with naming to distinguish\
+between general, 2D, and 3D classes. All of the base class methods need\
+to be renamed to begin CD. Then the subclasses get CD2 and CD3 prefixes.\
+\
+2/23/14\
+CD3 subclass is basically written and seems to work but it is hard to say\
+for sure because interpolation across bumpy data is hard to look at\
+quickly. It looks as though scanning in the x direction gets Ex right\
+but has problems with Ey and Ez.\
+Found first bug, an index was wrong. Now Ey and Ez don't change (correct)\
+but Ex is not interpolating correctly.\
+I had the indices back to front. They have form idx<z><y><x>. Now LOOK\
+correct. I have done along an edge and along a body diagonal.\
+\
+2/24/14\
+Oh dear, that means that I need to start to put it into the FieldViewer.\
+Before I do I need to figure out how to get a plane in the field viewer.\
+In general this is a rather tricky prospect. The general intersection\
+between a section of a cylinder and a plane is a complex shape. It can\
+vary from a rectangle all the way to a circle. I guess that it is in\
+general and ellipse with the ends cut off. That being said, I probably\
+don't need the general case. It is really the intersection of the\
+plane with the field region, a parallelepiped, that matters. That too\
+is in general a complex polygon--imagine a plane that is perpendicular \
+to the <1,1,1> direction of a cube and that passes through the cube \
+centre. I _think_ it is a hexagon but I would have to plot it to be sure.\
+However, at least at the moment I probably only need to be able to do\
+planes that have at least one generator that is parallel to one of the\
+box axes--ie. to one of the unit vectors. In that case, I think that\
+you can only end up with a rectangle.\
+\
+Hm, actually, I think that I do want to start by loading in the field\
+so that I can see the spatial relationship between the extent of the\
+field and the mirror. Aagh, the FieldViewer source is already a total\
+mess! There are about 40 files with almost no structure (the scanner is\
+in its own directory. Start by moving the Geometry to its own folder.\
+Then do the same with the MouseTools system. NOTE have to add each of\
+these to the include list. I got it back compiling by altering a few\
+header references to acknowledge the difference in path to the headers\
+(Scanner/... had to become ../Scanner/... inside Geometry/).\
+Now  can add a CD3Data folder to get access to the new kinds of field.\
+\
+Now I need to rewrite the File menu. First we remove New since it doesn't\
+make any sense for a viewer application. Then we add a Load Field\'85 item\
+that will be handled by the Document. Note that New needs to be removed\
+from ALL menus. LoadField only needs to be added to the GLFrame menu \
+since it makes no sense unless a document is open.\
+\
+And as soon I start to write LoadField I find a problem with whole\
+COMSOLField system. Yes, we need to be able to have 2D and 3D subclasses\
+but we don't necessarily know which we have until after we have opened\
+the file. It would be possible to load the file as a COMSOLData file and\
+then convert to either a 2D or 3D once it is open. It might be easier,\
+at least at first, to require the user to know what they are doing and\
+so offer BOTH a Load2D and a Load3D field command.\
+\
+Gah! I have run into an inconsistency in the GeometricObjects system. The\
+Box3D class _claims_ to be a Frame3D with a visible representation. Sort\
+of the way a Vertex3D is a Point3D (as well as a GeometricObject). But\
+it isn't. Instead it reimplements part of Frame3D's API. That is silly.\
+See I can fuse Box3D and Frame3D. Note that this does NOT arise for any\
+of the other GeometricObjects because there are no equivalent Geometries.\
+A Line3D is NOT a vector because it has 6 components (a start and a stop)\
+rather just 3. It _could_ be represented by a Point3D and a Vector3D\
+but that does not seem to gain anyone anything.\
+In fact Box is slightly cleverer than Frame because it has the concept of\
+being empty. You can't actually create an empty Frame3D. Even the default\
+constructor puts a point at the origin in the box. That is no good if\
+don't happen to need the point at the origin. Move the isEmpty member up\
+into the Frame3D and make it a little cleverer about what happens when you\
+add something to; make it understand that being empty is a valid state.\
+This is actually quite a large job because I got involved in fixing some\
+flaws in the Frame3D class, particularly in the Constructors, assignment,\
+and Set regions. I also had to move some routines from the Box up into\
+the Frame (such as PointInside).\
+\
+2/25/14\
+\
+I have run into a WEIRD problem where the document is getting constructed\
+before OpenGL is running (I _think_) and so the attempt to create a display\
+list for the Field's bounding box is failing. Move OpenGL init up to app?\
+Sometimes it works, sometimes it fails. I don't understand!!!\
+\
+BUT, when it works I get a field box! It still has the wrong color but\
+its position is now easy to see relative to the model. Maybe it is because\
+lighting is turned on? And then the crash on glGenLists came back.\
+How do I ensure that there is a 3D view present before the document is\
+created _or_ how do I do the document create without crashing? It is\
+happening because I am using sterile EFields as the head and tail of my\
+linked list of fields and they are getting mLists that they never use.\
+Can I move the glGenLists to a point where it is used?\
+Yes! Now don't get a list until you need it (in DisplayList::Start())\
+and all is well. Still don't have colors though. Well, except in the\
+axes. OK, so the color is being added by RunMaterial which only really\
+makes sense if you are going for a solid object. For a WireFrame you\
+just need to call the color. That did it! Fix the other geometric\
+objects. Done!\
+\
+Now can we actually display something about a field???\
+\
+2/26/14\
+Well, first I need a way to specify a surface on which to compute the\
+field. That means a dialog box. Like COMSOL I will ask for a point and\
+a direction. I supposedly figured out how to do this for SoundTool.\
+Yes, and it works just fine for FieldViewer too! It doesn't produce the\
+most elegant dialog box in the world but it does get the job done.\
+\
+So, what to do with it? Well, first use the point and direction to\
+construct a plane and display that plane. This looks as though it will\
+need another linked list to hold renderings of fields. That means that\
+I need to tweak my linked list system; divorcing the linked list part from\
+the data. This will actually help because it will mean that you can use\
+a plain ListElement as a list base/end and not worry about having extra\
+instance variables around.\
+\
+3/2/14\
+I seem to have the view loading. The dialog mostly works (the x and z\
+direction boxes are not editable) and the info gets back correctly.\
+The FieldView is able to find the intersection of the plane with the \
+view box. Now I need to be able to visualize that intersection. In theory\
+that is working. The FrameRect seems to be being created. The coordinates\
+appear to be correct. The draw routine (or at least _a_ draw routine) is\
+being called. But nothing shows up.\
+\
+3/3/14\
+Well, after a lot of tracking I find that the issue is indeed that _a_\
+draw routine is being called. I seem to have made the FieldView a geometric\
+object but given it a FrameRect for its current visual representation and\
+that is NOT being called. Override Draw in FieldView and see how we do.\
+YAY! The intersection rect of our slice and the field now shows up.\
+That tells me that the intersection code is SORT OF working. It appears\
+to work fine for planes that contain the z axis so long as the angle \
+between the x axis and the plane is <45\'b0. But this is _great_. I can now\
+_see_ the intersection plane and so can work on refining the intersection\
+algorithm.\
+\
+3/4/14\
+Angles >45\'b0 now work. I had simply left out a check for the intersection\
+being negative. Exact corner hits still don't work.\
+Adding enable commands to the direction box does not make the boxes able\
+to take text. Apparently something was wrong with my control IDs. I put\
+all the control IDs into the App.h file and now all the controls work.\
+I can now put the plane almost anywhere.\
+I do learn that it is a pain having to keep loading the field by hand.\
+You probably want to keep that ability but for most purposes the field\
+should loaded from the model description.\
+45\'b0 problem arises from the same point being returned from two different\
+Intersect runs. Need to check for distinct points and reject copies.\
+FIXED, all angles now work.\
+Now to make it show something other than the FrameRect!\
+\
+To do that I need to figure out what tis the right way to do it. The first\
+thing I did was instrument InitGL to obtain the vendor string and version\
+string. We seem to have only OpenGL 2.1 although my GL Extensions app\
+tells me that my machine supports up through 3.2.\
+I think that I have to play around with the way I ask for a GL context.\
+Actually, it looks as though I only need things are in 2.1.\
+The first thing that I need to use a texture is data for the texture. Those\
+data are color values derived from the field data. I need a 2D array of\
+them mapped to the FrameRect. Because I don't get direct pixel size info\
+about the FrameRect but instead get coordinates I can't choose the texture\
+size trivially from the FrameRect size. Instead I need somehow to compute\
+it. For now, maybe just add a spacing variable to the dialog, along with\
+an index to let me know which component to plot.\
+\
+3/9/14\
+I have started to do the extracting data from the field part. To make sure\
+that the process of interpolating 2D points in the 3D Rect3D worked well\
+I plotted all the interpolation points and found that indeed they lay\
+nicely in the plane of the rect. Right, that just WORKS!\
+\
+Now can extract data from the field but then have to figure out how to \
+color map it. Field data are being extracted correctly and a very crude\
+visualization works.\
+\
+3/10/14\
+Color mapping. Want a scheme that does red positive, blue negative, grey\
+zero. Try\
+v >= 0 -> r = 0.5 + v/(2*Max), g = 0.5*(1+sin(3*pi*v/(4*Max)), b = 0.5 - v/(2*Max)\
+v <= 0 -> r = 0.5 + v/(2*Max), g = 0.5*(1+sin(-3*pi*v/(4*Max)), b = 0.5 - v/(2*Max)\
+Quite pretty. Bit light though.\
+With that (now implemented in a ColorMapper class) I can do really lovely\
+displays without even invoking texture mapping by simply plotting points\
+with the desired colors. It is actually quite cool because the spaces\
+between the points mean that the views are translucent.\
+\
+3/11/14\
+Alas, getting it to work as a texture is less easy!\
+Maybe I should not bother for now. I have something that works quite well.\
+Instead implement a new kind of field, a 2D slice through an axisymmetric\
+field that is extrapolated to provide a real 3D field.\
+\
+That worked fine.\
+\
+3/13/14\
+Now working on reading nested fields and on a binary field storage. I\
+have added methods to read and write 3D files in binary and I just need\
+to test them.\
+I am realizing that although I have not been writing C++, I have been\
+writing the COMSOLData routines in .cpp files and thus running them through\
+a C++ compiler. I need to make a new project that is pure C to make sure\
+that all is well in pure C.\
+\
+All is indeed well (though I have to include stdbool.h to get access to\
+the bool type and constants). I have a COMSOL3D2Bin project that will\
+convert a 3D COMSOL data file into a binary format. Now I need to modify\
+FieldViewer to read in binary fields and to use the .c forms of the\
+header files. I think this will mean guarding the header files like this\
+\
+#if defined(__cplusplus)\
+extern "C" \{\
+#endif\
+\
+<actual contents of the file>\
+\
+#if defined(__cplusplus)\
+\}\
+#endif\
+\
+Apple does this with a pair of macros (defined in <sys/cdefs.h>)\
+\
+__BEGIN_DECLS\
+__END_DECLS\
+\
+which are a lot shorter. They only need to go round function definitions\
+not structure or constant refs.\
+\
+OK, so make a copy of the FieldViewer application and start modifying it\
+to support the pure C, binary stored, fields.\
+Now operating in FieldViewerc.\
+\
+Well, the basic idea of reading in a file is FINE. However, the field\
+bounding box is coming in wrong. Check the writer code again.\
+Writer was not initializing min and max before scanning data. Fixed.\
+\
+Now reading the box in correctly. But the data accessor is not mapping\
+its points correctly. For one thing it appears to be upside down! Does\
+this have to do with the way that the Frame is mapped to the field?\
+\
+I really need a completely artificial, very low amount of data, example\
+to work this out on rather the realistic system I am using.\
+\
+3/14/14\
+I was neither writing nor reading all the data. I read and wrote point\
+values but should have done point * 3. Once I had all the values correct\
+the fields displayed perfectly. Then I started in on the nesting problem.\
+That caused me to consolidate the 3D and 2D fields and to add the ability\
+to nest. Now a field may have sub-fields and it uses helpers to read the\
+field that know the dimensionality.\
+I put the new fields into the file reader but then found problems. First\
+I didn\'92t open new files for the fields and so was trying to read them from\
+the model file. Then I found that the open file dialog was giving me a\
+full path and not altering the current directory. Thus, when I tried to\
+read in a file it was not there since we were in the wrong directory.\
+Fixed. Now we open the field file and get the right magic number. The\
+max, min, and delta fields are correct as are the source names. But the\
+number of values/dimension is weird and the field type is totally screwy.\
+\
+OK, that was my fault for forgetting to update the fields in the active\
+directory. With the update the outer field is being loaded correctly. I\
+am still not getting the inner field.\
+\
+Oh dear, the issue is with which FILE* is which.\
+I have mixed up the FILE* that contains the text description of the field\
+hierarchy with the FILE*s that actually point to field files. I need to\
+tidy up a bit.\
+\
+3/15/14\
+Once I tidied up it simply worked. I can now nest one field inside another!\
+Now I need to start connecting multiple fields. At the moment I can only\
+do nested fields. Actually, if I do it right then I only need that! Have\
+an overarching field to be the parent and the rest takes care of itself.\
+\
+3/18/14\
+Oh my. I brought over some 2D fields and they have real problems. The \
+stride seems not to be correct as there are funny black stripes in the\
+pictures.\
+OK, so there were TONS of errors in the (never debugged) new 2D code. Once\
+they were fixed the pictures look beautiful. BUT this way of rendering\
+is too expensive for models as large as this in high resolution. I need\
+to be able to limit the viewing region. Done.\
+\
+3/20/14\
+With the guts working fairly well I want to go back and do a little work\
+on the plumbing. In particular the display stuff is a bit of a mess. I\
+want to alter the initial GL parameters so that we start with the detector\
+upright and looking at the y-z surface. It would be nice, too, if the\
+display aspect and the view angle were more appropriate. It would also be\
+really nice if the display updated when the fields load.\
+Window size and all the positioning stuff fixed. Also tidied up the\
+hierarchy. FieldViewerView was (poorly) duplicating the work of its\
+superclass, GLViewerView, instead of just adding a tiny bit. Fixed.\
+Still have issues with display not updating. Fixed\'97GLViewerView needed to\
+do a Refresh in OnUpdate.\
+\
+4/21/14\
+Trying to use this to look carefully at FEM noise using an xy slice I\
+run into several problems.\
+1) Why am I trying to render field outside the region of the mirror?\
+It just leads to tons of (slowing) out-of-range errors.\
+2) I need to be able to clear away existing fields not just add fields.\
+When I want to change which field component I am plotting which keeping\
+the same plane is a good example. If I just add another visualization\
+then they overlay each other and I can see neither.\
+\
+Problem 1 is trickier than I thought because the information is just\
+not there.Actually, the more I think of it the more I don\'92t understand\
+what I saw and the less I understand where the error messages come in.\
+And then they disappeared.\
+\
+I have actually seen what I needed to and am postponing work on this.\
+\
+5/6/14\
+One cataract surgery later and I don\'92t see as well as I did yet, but I\
+have found a way round the issue of keeping the dialogs open while the\
+processing takes place. I have created a helper for the ChoosePlane routine\
+that takes care of processing and dismissing the dialog and then returns\
+the information to its caller. Now the dialog is dismissed as soon as the\
+helper finishes while the processing does not start till after that.\
+The most important place to try this is in the file open system. The\
+trouble there is that I don\'92t call the file dialog myself. It is called\
+for my by the document manager. I need to make the open routine trigger\
+the later execution of a method that actually does the load. \
+\
+7/1/14\
+Despite the fact that I designed this application to have a nice logging\
+window as its permanent visible incarnation, very little info is actually\
+sent to the log. Instead, most of it is sent to stderr or stdout and\
+ends up in the debugging console. Of course, that info is only available\
+when running under the debugger. It would be much better if I could have\
+replacements for the standard fprintf routines that could route the info\
+to my logging window. It would be better still if these routines could\
+easily be converted into standard fprintf calls if the code were compiled\
+standalone instead of as part of the viewer.\
+I propose switching from \'91fprintf(stderr\'92, and \'91fprintf(stdout\'92, or \
+\'91printf\'92 to routines of my own naming starting with\
+oprintf  to handle normal output, exactly the same as printf\
+iprintf for information output, kind of temporary printfs\
+eprintf for real error output, the worst of \'91fprint(stderr\'92\
+wprintf for warning output, for non-fatal kinds of \'91fprint(stderr\'92\
+\
+I will provide two implementations distinguished by the presence or\
+absence of wxWidgets. Without wx they will revert to printf and\
+fprintf. With wx they will send their output to the logging window.\
+BUT they will do so directly to the textCtrl. The window is currently\
+implemented as a wxLogTextCtrl and thus should get wx log messages as\
+well, though I have never seen any. But that insulates me from the\
+textCtrl. If I write directly to the textCtrl then I can print the\
+different kinds of message in different colors or different faces. This\
+can make the log more readable than the console output.\
+\
+7/2/14\
+I really need to find a way to make this transparent. That is, I need to\
+be able to add this to a file that uses \'91printf\'92 and \'91fprintf(stderr\'92.\
+I may be able to do this with a local stdio.h that includes the real one\
+and then uses macros to replace printf and fprintf.\
+\
+First get the silly thing working then worry about how snazzy to make it!\
+OK, so I have tested writing directly to the textCtrl and it works fine.\
+While logging appends newlines, using AppendText does not and so works\
+exactly as you want for a printf replacement. I have also shown that\
+I can change the color of the text easily. Time to make the textCtrl into\
+a global so that it is accessible everywhere and to write the printfs.\
+For now keep them as part of the app. Done. The app now supports printing\
+to the log window in four different colors! I wanted a yellow like Xcode\
+uses for warnings but wxYELLOW was unreadable so I went with green for\
+warnings because it was easy.\
+\
+Now to alter the logging output in ReadField.c to use the new routines.\
+Done. Also made the actual error messages in GLAList.c use the new\
+routines.\
+\
+Now to alter the working of the system. First I really want to have a\
+proper texture for the field map and not the silly mesh of dots. Then I\
+would like to open a 2-D window for every plane in the 3-D view and allow\
+zooming in the 2-D view. That way you can use the 3-D view for relations\
+but have the ease of rubber-banding in a 2-D view for blowing up regions\
+of interest. Start with texturing.\
+\
+Start by adding a square to the default items in the 3-D view.\
+Having problems with glBegin(GL_QUADS). I get a square with a triangular\
+cut-out on one side. OK, I didn\'92t have the vertices in the right order.\
+Now to create some texture data. Texture data need to be in power-of-two\
+sized arrays. The smallest appears to be 2x2.That should be enough to \
+see something!\
+Well, I get no errors but I also get no texturing. BUT when I added the\
+code to set the texture filtering so that it could handle a difference in\
+size between the texture and the image on the screen THEN I got a texture!\
+Altering the data to 4x4 I get a more complex pattern. I don\'92t understand\
+my 0, 255, 255, 255 pattern gets me a blue bump in the lower left corner\
+and black in the three other quadrants. \
+OK, so the issue is that this is ACTUALLY storing multiple bytes per pixel.\
+Shifting to 255, 0, 255, 255 got me a magenta bump. The previous one was\
+actually cyan. To do a 2x2 pattern takes 2x2x4=16 bytes where each adjacent\
+four bytes specify the RGBA components. Verify this with the 16 element\
+array. Make corners red, green, blue, white. YES! Works almost exactly\
+as I would wish. The almost is because the edges are being blended in\
+a toroidal fashion. Change the filtering. At the moment I am using\
+\
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // Linear Filtering\
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // Linear Filtering\
+\
+Since my map is tiny and my square quite large I believe that only the\
+GL_TEXTURE_MAG_FILTER filter counts. I am using linear which is why I\
+am getting blending. If I switch to GL_NEAREST then I should get solid\
+color patches.And that is exactly what happens.\
+Setting back to linear but using a border of 1 gets me a solid blue\
+square. I have no idea why!\
+I may be able to do better by switching the mode to GL_CLAMP_TO_EDGE with\
+a 0 width border. And that does it. Now I go from full color at the\
+corners to grey at the cross-over points.This is clearly the mode that\
+I will want to use for my textures.\
+\
+Right. The next thing is to try to use this with the existing color\
+mapping code. I already get an array holding color values. All I need to\
+do is to convert it into a texture and apply it to the surface. In fact,\
+I already wrote most of that! All I had to do was re-enable it and add the\
+two magic MIN and MAG lines and it (sort of) worked. That is, I got a\
+textured rectangle but\
+a) the colors don\'92t make any sense: I get a linear greyscale gradient as\
+   though I am mapping the potential)\
+b) I get an opn error from the glEnd() at the end of the begin-end loop.\
+\
+Well, (a) turns out to be because that is what I wrote! It was left in as\
+a test I believe. I have no idea what is causing the opn error.\
+\
+Trying to use a RainbowMap gets me a solid red rectangle.\
+I have not set the field limits in the mapper. I am dividing by zero.\
+When I fix it so that I set the field limits correctly I a truly bizarre\
+picture of coloured blobs. Some of them have sharp square edges and some\
+are blurred as you might expect of linear blending.\
+Just experimenting with the texture by writing my own colors to it I find\
+some weird things. It seems to be left-right reversed and top-bottom\
+reversed. Yes, the low entries are at the TOP of the map and the right.\
+\
+Then I figured out that I was not passing in the correct size of the field\
+array. Once I fixed that and went back to the original mapping code the\
+data came beautifully.\
+\
+7/3/14\
+So now I need to create a different type of window for viewing the field.\
+When I create a slice I want to open a 2-D window that supports rubber-\
+band selection and zooming. I also want to solve the problems of tool\
+bars. I think I will try that first since I _really_ want a toolbar for\
+the 3D view. Well that was a pain. I kept getting crashes deep in the\
+Objective-C guts of the toolbar code. I got rid of them by accepting a\
+default toolbar instead of a text-only toolbar.\
+I now have a horrible toolbar with five identical icons on it. They \
+only seem to take their selected state. I can fix the identical bit by\
+creating more icons. That looks fine. The state thing is apparently an\
+OSX limitation.\
+Before I go further I want to alter the display. I would be able to see\
+a lot more detail in the field if I used a modified logarithmic plot\
+rather than a linear plot. I need a modified log plot because I need\
+to deal with signed numbers. So I will create two different rainbows,\
+one from grey to red and one from grey to blue. Then I will use a log\
+mapping on the value of the field and use the sign to pick a particular\
+map.\
+Oh boy, the axial field looks amazing like that. The radial field is just\
+_weird_. There are all sorts of complicated low-level things going on in\
+the main body of the tube.They look rather strong in this visualization\
+but I suspect that is an issue with the color map.\
+\
+It would be nice to have a system to play with in which I KNOW the field\
+very precisely. Maybe I should put a charge in middle of a rectangular\
+box and solve that with COMSOL.Done, now to add a .gla file and see\
+if we can visualize it.\
+Well, I am not clear why I get TWO boxes, one inside the other. And I\
+still don\'92t really understand what is happening around very low field\
+values, but the result is GORGEOUS!\
+NOTE that the general plane is not making its surface the same way as\
+the Z plane. It shows signs of pixelation.\
+OK, one box is the incorrect one given in the model file. The other is\
+the field bounds box that is coming from the fields themselves.\
+\
+7/4/14\
+Oh, now I understand the issue with the colors. When I take log(field)\
+I get back an answer that can be negative! That means that very low \
+values seem to wrap onto negative values! There are various ways to deal\
+with this. For the first test I will just replace any negative values \
+by zero. Oh yes! That makes the transverse field in my mirror test look\
+MUCH more normal. It does still allow me to see small ripples in the\
+field round the edges. Now all three field components are very sensible\
+to the eye!\
+Two things would be nice. First it would be really useful if each plane\
+came with a legend\'97a nice map of the color to value in the same way\
+that COMSOL provides. Second it would be nice if there were some \
+periodicity in the color map so that you can see down into the lower\
+values more clearly\'97that is, you get a better sense of how far down\
+the lower values are.\
+Let\'92s start by adding a legend to each plane. Ideally this will have\
+the colors AND the numbers and will lay them out in some way that best\
+shows the mapping. I have to work on the idea of the mapping a bit more\
+carefully. There are really two (at least) different ideas. One the\
+actual color sequence and the other is the mapping from field value to\
+a place on the color sequence. These are conceptually quite independent.\
+You could use a simple grey-scale map with a fancy bipolar logarithmic\
+mapping just as well as with a straightforward linear mapping. It would\
+be nice to make various different visualizations available and this \
+should be orthogonal to the specification of the view region. I need a\
+different menu (and possibly toolbar buttons) to provide mapper options\
+but that will also need the idea of a current view for the options to\
+affect. If you can select a current view then you can also delete views\
+which might be convenient. OK, so start by finding a way to select a\
+view. The obvious thing is to be able to click on a view and select it.\
+That, however, is a picking operation and I have never done that before.\
+Start by adding infrastructure to support selection. Need both a reference\
+at the document level and a flag in the view. The flag will alter the\
+appearance of the object. The reference will allow it to be removed from\
+the list of views. The flag works. Picking is a bit more complex.\
+\
+First I am going to add a view menu to alter the mappings. This seems to \
+require me to figure out the menu system again. The menu belongs to the\
+frame in wx. The application creates a menu that it associates with the\
+logging window and the GLFrame creates its own menu. The GLViewerFrame\
+should NOT create the View menu because it is something that is special\
+to the field process and not a generic GLViewer thing. So the document\
+should probably own and create the View menu and should add it to the\
+Frame\'92s menu bar. On the other hand, it seems that the Field view menu\
+items are currently on the Frame\'92s File menu. That does not seem right.\
+I think that I should move them to the new view menu.\
+\
+7/7/14\
+So how do I do this? I think that I build a new menu in the Doc and then\
+ask the Frame to insert it. Yes, that worked fine. Note I made them \
+radio items so that only one of each will be checked at a timer.\
+Now I can add menu handlers for the linear/log and rainbow1-3 items. \
+Start with lin/log. This will mean a BIG change in the way that FieldView\
+works. For one thing, you can now change the texture during the life of\
+view. This means that Update will need to do something.\
+Before I make this work there is one other thing that ought to get solved.\
+At the moment I am getting the number of points to use in the texture\
+map from the value that the use types in the dialog. This is silly. I\
+should be getting it from the number of pixels in the rectangle that I\
+am texturing. The problem with that is that it is given in GL space I need\
+values in screen space. How do I go between the two?\
+\
+7/8/14\
+Well, the information must be inside the projection matrix so it comes from\
+the information that produces the projection matrix; the field of view \
+(fovy), aspect ration, and near and far distances. Only the Canvas has\
+those so we need to augment the canvas so that we can query them. This\
+means that we need to create an obligate relationship between the FieldView\
+and the GLCanvas. Done. Maps now size themselves correctly and we can\
+remove the size parameter from the dialogs if we want.\
+Now I have to work on the break-up of the rendering in FieldView. There\
+are two rendering phases. The first one maps the values from the field\
+onto the -1->1 range and the second maps those values onto colors. These\
+should be controlled by the menus.\
+\
+7/9/14\
+Mapping works but it took a HUGE effort. I had horrible problems with\
+the mapping algorithm, mostly due to silly mistakes. I am currently\
+using a CoolWarm map that I don\'92t much like.\
+I had a lot of trouble with the linear/log menu items too. It seems that\
+if you use RadioItems then you don\'92t get menu events. Instead the system\
+just maintains the checks itself. Instead use CheckItems and do the\
+check handling yourself.\
+Everything now works except changing the mapping of an already displayed\
+field. Oh, that and deleting fields.\
+\
+7/11/14\
+Fixed bug in ReadFile.c that made it print useless error messages when\
+fields were not enclosed in outer fields. Now all fields carry their file\
+names about with them.\
+Let\'92s see if we can try deleting fields. That works! It was very easy.\
+Of course once you have deleted a field there is no selected field so\
+we are back to the need to be able to select a field. And that gets us\
+back to picking!\
+\
+7/13/14\
+Which clearly scares the bejeezus out of me. OK, the place this has to go\
+is in the pointer tool. Only there isn\'92t one! The current tool in that\
+slot is a generic GLMouseTool. It sends click messages to its responder\
+which turns out to be the GLViewerCanvas.\
+In the click handler I use gluUnproject to convert window coordinates into\
+world coordinates which turns out to be a little more complex than you \
+might think in that you have to tell it what z value you want. Also, there\
+is the slight issue of making sure that you have the RIGHT model view and\
+projection matrices. In this case that means that I have to run the\
+matrix setup in the click handler. Once I do that I get sensible looking\
+numbers coming back as world coords.\
+Now I have to do the picking thing. This is a little more complex as some\
+of the information isn\'92t here! The GLViewerCanvas does not know what is\
+in the model and the model has to put names into the renderer for us to\
+know what got hit. These names are simple integers and since the things\
+that we will be picking are Fields and the fields are stored in a list\
+it will be natural to use the list order as the names. Since the actual\
+view rendering will be done by the document through its RenderModel\
+method and that, in turn, will be called through the View\'92s Render\
+method, we will have to tell these methods whether we are rendering\
+or picking. Just add an argument that is true when picking. This will\
+want to happen up in the GLViewerView class.\
+OH my!, and then it just works! (once you remember to put in the picking\
+matrix). The only issue is that it works with ALL tools. Restrict to\
+pointer by checking that the correct tool is current. Works.\
+Now I just need to DO something with the picking info! First thing is\
+to figure out which entry was picked. At least for the moment I will\
+only look at the first selection. \
+\
+7/17/14\
+The log view has proved extremely useful. I think it has lead us to understand a problem in our mirror models. It has also lead me to want\
+to be able to print the field at a picked point.\
+This has difficulties. \
+The Canvas has to do the basic mouse handling because it needs\
+access to the matrices BUT the canvas can\'92t know anything about the\
+fields that it is pointing at. All it can do is say that the mouse click\
+lay on a line in 3D space and that some particular object intersected\
+that line.\
+So maybe the best that the canvas can do is to forward that information to\
+some kind of handler.\
+On the other hand, if there are multiple objects that intersect the\
+line then how does it communicate THAT up to the handler? Actually, it\
+is quite easy. It builds an array of their names and passes that, along\
+with the line information as a Vector3D.\
+So I need a mix-in class to handle a pointer click.\
+The great problem is what to do if there is more than one object that\
+lies under the pointer? For the moment, I will say that if there is\
+a current object and that object is in the list then we do nothing\
+about the selection. Otherwise we just select the first object in the\
+list.\
+Then once I have a selected object I have to find the intersection of\
+the click line with that object. The object has a FrameRect that we\
+use to find the intersection.\
+\
+7/18/14\
+It turns out that we need to solve a matrix problem to do that and I don\'92t\
+seem to have a recent matrix inverter code. I am digging back into time\
+to MacDAL for an inverter. That\'92s kind of messy.\
+Actually, I don\'92t think that we do. {\field{\*\fldinst{HYPERLINK "http://geomalgorithms.com/a05-_intersect-1.html"}}{\fldrslt http://geomalgorithms.com/a05-_intersect-1.html}} shows how to compute an intersection purely using\
+vector operations (this probably corresponds to a solution in terms\
+of geometric algebra, though it not couched that way).\
+\
+7/19/14\
+Then I just have to figure out how to connect the canvas to the document!\
+The canvas knows how to find the view but the view that it knows how to\
+find is only a GLView and that does not know about the document.\
+I think that the solution is actually a slight simplification. Get rid of\
+the FieldViewerView. All it does is add the document to the GLView and pass the GLView\'92s render method up to the document. But the GLView always needs\
+something to do its rendering for it. I can move the understanding of that\
+to the GLView if I use a mix-in. I will upgrade the interface class to\
+a Model3D that will support both the DoClick and the Render methods and \
+then the GLView can install that directly into the GLCanvas and we will\
+get rid of several layers of indirection.\
+\
+That worked and now I can get field info by clicking.\
+Save a copy at this point. FieldViewerc7_19_14.\
+\
+7/7/15\
+New Year!\
+It would be very useful if the choose plane dialog remembered the previous\
+choices. Since a new ChoosePZPlane is created every time the correct way\
+to do this is with class static variables that are used to initialize the\
+normal variables each time.\
+\
+7/9/15\
+That worked fine. I have also fixed a few minor null pointer derefs (they\
+were happening when things didn\'92t load quite right or when you tried to\
+do a pointer click with no field).\
+I have also implemented a new and better rainbow field colorizer. I still\
+need to fix the names in the menu!\
+I would like to have the pointer click print the name of the file from\
+which the data point came. That works fine. I had to add code to ReadField:\
+ParseField to copy the file name into the field structure\'97there was a\
+place for it but it was not being used. Now you get either the name or\
+a message for no field.\
+\
+It would be really nice if I could rubber band into a field and have\
+ONLY the visible region converted. First, can I rubber band and pick\
+a section of field?\
+On my way to that I looked at Pan First I fixed the reversed left-\
+right problem and then I altered Canvas::Pan so that the motion is sized\
+to the view region and so the image much more nearly tracks the mouse\
+pointer motion at all zooms. It is MUCH more useful.\
+I have created a new MouseTool and the Responder methods to support it.\
+I have figured out how to draw the rubber band box in Canvas::Paint\
+using a gluOrtho2D call and a rectangular line loop. Once I got the\
+coordinates the right way up (screen coords\'97top is 0 and y increases\
+DOWN the screen) the box exactly follows the cursor.\
+Now can I use the info to rezoom the screen? Nothing happens until the\
+user releases the mouse button but that is OK because that gets sent\
+to the Canvas. The changes after the button is released may need to\
+be made at the next level up. I think that we are going to have to\
+use the picker to translate the screen points into 3D points before\
+we can do anything else. Never worked on.\
+\
+8/5/15\
+While trying to test COMSOLZMerge I have found a problem with the\
+overall design. There is a basic assumption that fields are always\
+inside containers. If you have a field made up of several independent\
+sections then the whole scheme breaks down. There is no way to search\
+along a list of non-nested fields for a field point. This should be\
+fixed at some point.\
+\
+8/6/15\
+Two more important things to try. First it would be nice to be able\
+to turn off interpolation on the fields and see the blocks from \
+which the field is made up. It should be easy to add an alternative,\
+simpler, lookup method to the field and to add a global to select\
+the method.\
+The other is that it would be really nice to be able to set the \
+colour value limits for the colour map. This could be done with extra\
+fields in the ZPlane dialog. WORKS!!!\
+I was able to swap the wx library from 3.0.0 to 3.0.2 just by removing\
+the old and adding the new! Now can I alter the structure of the file\
+organization to make it easy to switch to Git?\
+Switch made. There is now a FiledViewerRep directory that only holds\
+sources, toolbar images, and these notes. It can be made into a\
+Git repository.\
+\
+}
