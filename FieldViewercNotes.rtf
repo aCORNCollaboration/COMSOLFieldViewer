@@ -1064,8 +1064,15 @@ fields in the ZPlane dialog. WORKS!!!\
 I was able to swap the wx library from 3.0.0 to 3.0.2 just by removing\
 the old and adding the new! Now can I alter the structure of the file\
 organization to make it easy to switch to Git?\
-Switch made. There is now a FiledViewerRep directory that only holds\
-sources, toolbar images, and these notes. It can be made into a\
-Git repository.\
 \
+I created an organization (aCORNCollaboration) on GitHub and created a\
+new repository (COMSOLFieldViewer) there. That resulted in a \
+COMSOLFieldViewer directory in Development. I moved the source and\
+resource directories from FieldViewerc to CCOMSOLFieldViewer and\
+committed them.\
+\
+I now have a FieldViewerXCode directory that contains all the Xcode\
+project stuff for the viewer and a separate COMSOLFieldViewer repository.\
+This is not the best organization but it will work for now. Retweak the\
+Xcode project so that it can find everything again.\
 }
