@@ -232,6 +232,9 @@ void FieldView::ViewType(int type, double spacing)
     //  Figure out map dimensions by projecting the frame into the canvas.
     //
     mNDown = (int) floor(mCanvas->Project(mFrame->GetHeight()));
+    if (mNDown < 1) {
+      mNDown = (int) floor(mCanvas->Project(mFrame->GetHeight()));
+    }
     mNAcross = (int) floor(mCanvas->Project(mFrame->GetWidth()));
     mPData = new Point3D[mNAcross * mNDown];
     mFData = new double[mNAcross * mNDown];
@@ -282,7 +285,10 @@ void FieldView::ViewType(int type, double spacing)
     //
     //  And then build a texture to put in it.
     //
+    assert(mNAcross > 0);
+    assert(mNDown > 0);
     mTex = new FieldTexture(mNAcross, mNDown);
+    assert(nullptr != mTex);
     FieldMapper* fm;
     if (mDoc->IsLinear()) {
       fm = new LinFieldMapper(mFMin, mFMax);
