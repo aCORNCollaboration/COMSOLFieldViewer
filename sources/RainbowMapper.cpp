@@ -96,7 +96,7 @@ RGBColour RainbowMapper::Map(double val)
   /*
    * This one splits the range into 8 parts and linear maps
    * within parts.
-/*
+*
   float chroma = fabs(val);
   float hue = (val >= 0) ? 240.0f * chroma : -240.0f * (chroma - 1);
   float luma = 0.299 + (0.5-0.299)*val;
