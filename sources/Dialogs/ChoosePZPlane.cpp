@@ -160,6 +160,7 @@ void ChoosePZPlaneDlg::CreateControls()
     wxT("Bx"),
     wxT("By"),
     wxT("Bz"),
+    wxT("Br"),
     wxT("|B|")
   };
 	//
@@ -367,6 +368,7 @@ void ChoosePZPlaneDlg::CreateControls()
                                    WXSIZEOF(viewStrings),
                                    viewStrings,
                                    0);
+  vChoice->SetSelection(mComponent);
 	wxBoxSizer* boxc = new wxBoxSizer(wxHORIZONTAL);
   boxc->Add(boxg, wxALIGN_LEFT);
 	boxc->Add(100, 5, 1, wxALIGN_CENTER_HORIZONTAL | wxEXPAND, 0); // Spacer
@@ -485,6 +487,7 @@ double ChoosePZPlaneDlg::GetMaxV(void)
 
 int ChoosePZPlaneDlg::GetType(void)
 {
+  sComponent = mComponent;
   return mComponent;
 }
 
@@ -496,6 +499,7 @@ float ChoosePZPlaneDlg::GetGridH(void)
 	} else {
 		mGridh = 0.1;
 	}
+  sGridh = mGridh;
   return mGridh;
 }
 

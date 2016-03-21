@@ -31,12 +31,13 @@
 //  ctors
 //
 FieldView::FieldView(GLViewerCanvas* theCanvas, EField* f, FieldViewerDoc* d) :
-            Listable(), GeometryObject(kGeomView)
+Listable(), GeometryObject(kGeomView)
 {
   mCanvas = theCanvas;
   mField = f;
   mDoc = d;
   mFrame = nullptr;
+  mLegendFrame = nullptr;
   mValid = false;
   mFixRange = false;
   mTex = nullptr;
@@ -223,7 +224,7 @@ int FieldView::ViewPlane(Point3D& p, double theta, double zMin, double zMax)
 //
 void FieldView::ViewType(int type, double spacing)
 {
-//  static char mBuff[128];
+  //  static char mBuff[128];
   if (mFrame->IsValid()) {
     //
     //  Start by figuring out how big an aray we will need to hold the view.
@@ -250,8 +251,8 @@ void FieldView::ViewType(int type, double spacing)
       y = (j + 0.5) * spacing;
       for (i = 0; i < mNAcross; i++, x = ((i + 0.5) * spacing)) {
         Point3D p = mFrame->Map2D(x, y);
-//        printf("<%f,%f>->[%f,%f,%f]\n",x,y,
-//               p.mX, p.mY, p.mZ);
+        //        printf("<%f,%f>->[%f,%f,%f]\n",x,y,
+        //               p.mX, p.mY, p.mZ);
         Vector3D f = dynamic_cast<EField*>(mField)->FieldAt(p);
         mPData[(int)(j * mNAcross + i)] = p;
         switch (type) {
@@ -267,7 +268,11 @@ void FieldView::ViewType(int type, double spacing)
             v = f.mZ;
             break;
             
-          case 3:
+          case 3:     // Radial compopnent
+            v = sqrt(f.mX * f.mX + f.mY * f.mY);
+            break;
+            
+          case 4:     // Total field
             v = f.Length();
             break;
             
@@ -295,7 +300,7 @@ void FieldView::ViewType(int type, double spacing)
     } else {
       fm = new LogFieldMapper(mFMin, mFMax);
     }
-//    ColorMapper* cm = new RainbowMapper(1);
+    //    ColorMapper* cm = new RainbowMapper(1);
     ColorMapper* cm;
     if (mDoc->GetNColorCycle() == 1) {
       cm = new CoolWarmMapper(1);
@@ -355,50 +360,52 @@ void FieldView::Draw()
     //
     //  Draw our textured rectangle.
     //
-/*    iprintf("Coloring field with texture %d\n", mTex->Name());
-    Call(glPolygonOffset(1.0f, 1.0f));
-    Call(glEnable(GL_TEXTURE_2D));
-    Call(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE));
-    Call(glBindTexture(GL_TEXTURE_2D, mTex->Name()));
-    Call(glBegin(GL_QUADS));
-      Call(glTexCoord2f(0.0f, 0.0f));
-      Call(glVertex3dv(mFrame->BottomLeft().mCoords));
-      Call(glTexCoord2f(1.0f, 0.0f));
-      Call(glVertex3dv(mFrame->BottomRight().mCoords));
-      Call(glTexCoord2f(1.0f, 1.0f));
-      Call(glVertex3dv(mFrame->TopRight().mCoords));
-      Call(glTexCoord2f(0.0f, 1.0f));
-      Call(glVertex3dv(mFrame->TopLeft().mCoords)); */
+    /*    iprintf("Coloring field with texture %d\n", mTex->Name());
+     Call(glPolygonOffset(1.0f, 1.0f));
+     Call(glEnable(GL_TEXTURE_2D));
+     Call(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE));
+     Call(glBindTexture(GL_TEXTURE_2D, mTex->Name()));
+     Call(glBegin(GL_QUADS));
+     Call(glTexCoord2f(0.0f, 0.0f));
+     Call(glVertex3dv(mFrame->BottomLeft().mCoords));
+     Call(glTexCoord2f(1.0f, 0.0f));
+     Call(glVertex3dv(mFrame->BottomRight().mCoords));
+     Call(glTexCoord2f(1.0f, 1.0f));
+     Call(glVertex3dv(mFrame->TopRight().mCoords));
+     Call(glTexCoord2f(0.0f, 1.0f));
+     Call(glVertex3dv(mFrame->TopLeft().mCoords)); */
     Call(glPolygonOffset(1.0f, 1.0f));
     Call(glEnable(GL_TEXTURE_2D));
     Call(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE));
     Call(glBindTexture(GL_TEXTURE_2D, mTex->Name()));
     glBegin(GL_QUADS);
-      glTexCoord2f(0.0f, 0.0f); glVertex3dv(mFrame->BottomLeft().mCoords);
-      glTexCoord2f(1.0f, 0.0f); glVertex3dv(mFrame->BottomRight().mCoords);
-      glTexCoord2f(1.0f, 1.0f); glVertex3dv(mFrame->TopRight().mCoords);
-      glTexCoord2f(0.0f, 1.0f); glVertex3dv(mFrame->TopLeft().mCoords);
+    glTexCoord2f(0.0f, 0.0f); glVertex3dv(mFrame->BottomLeft().mCoords);
+    glTexCoord2f(1.0f, 0.0f); glVertex3dv(mFrame->BottomRight().mCoords);
+    glTexCoord2f(1.0f, 1.0f); glVertex3dv(mFrame->TopRight().mCoords);
+    glTexCoord2f(0.0f, 1.0f); glVertex3dv(mFrame->TopLeft().mCoords);
     Call(glEnd());
     Call(glDisable(GL_TEXTURE_2D));
     Call(glPolygonOffset(0.0f, 0.0f));
     //
     //  Add the legend.
     //
-    mLegendFrame->Draw();
-    //
-    //  Draw our textured rectangle.
-    //
-//    iprintf("Coloring legend with texture %d\n", mLTex->Name());
-    Call(glEnable(GL_TEXTURE_2D));
-    Call(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE));
-    Call(glBindTexture(GL_TEXTURE_2D, mLTex->Name()));
-    glBegin(GL_QUADS);
+    if (nullptr != mLegendFrame) {
+      mLegendFrame->Draw();
+      //
+      //  Draw our textured rectangle.
+      //
+      //    iprintf("Coloring legend with texture %d\n", mLTex->Name());
+      Call(glEnable(GL_TEXTURE_2D));
+      Call(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE));
+      Call(glBindTexture(GL_TEXTURE_2D, mLTex->Name()));
+      glBegin(GL_QUADS);
       glTexCoord2f(0.0f, 0.0f); glVertex3dv(mLegendFrame->BottomLeft().mCoords);
       glTexCoord2f(1.0f, 0.0f); glVertex3dv(mLegendFrame->BottomRight().mCoords);
       glTexCoord2f(1.0f, 1.0f); glVertex3dv(mLegendFrame->TopRight().mCoords);
       glTexCoord2f(0.0f, 1.0f); glVertex3dv(mLegendFrame->TopLeft().mCoords);
-    Call(glEnd());
-    Call(glDisable(GL_TEXTURE_2D));
+      Call(glEnd());
+      Call(glDisable(GL_TEXTURE_2D));
+    }
   }
 }
 //

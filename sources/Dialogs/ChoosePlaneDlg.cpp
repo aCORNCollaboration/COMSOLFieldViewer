@@ -8,6 +8,8 @@
  *  Converted frm SoundTool:AddSinDlg BCollett 2/26/14
  *  Created by Brian Collett on 6/28/13.
  *  Copyright 2013 Brian Collett. All rights reserved.
+ *  BCollett 8/10/15 Add persistent dialog entries and radial
+ *  field component.
  *
  */
 #include "wx/wxprec.h"
@@ -24,6 +26,20 @@ IMPLEMENT_CLASS( ChoosePlaneDlg, wxDialog );
 
 BEGIN_EVENT_TABLE( ChoosePlaneDlg, wxDialog )
 END_EVENT_TABLE()
+//
+/////////////////////////  CLASS VARS  ///////////////////
+//
+//  We store the previous versions of the instance vars in class
+//  vars because new calls are almost always very like old ones.
+//
+float ChoosePlaneDlg::sPointX = 0.0f;
+float ChoosePlaneDlg::sPointY = 0.0f;
+float ChoosePlaneDlg::sPointZ = 0.0f;
+float ChoosePlaneDlg::sDirX = 0.0f;
+float ChoosePlaneDlg::sDirY = 0.0f;
+float ChoosePlaneDlg::sDirZ = 1.0f;
+float ChoosePlaneDlg::sGridh = 0.01;
+int ChoosePlaneDlg::sComponent = 2;
 //
 ///////////////////////////// CTORS ///////////////////////
 //
@@ -98,12 +114,14 @@ bool ChoosePlaneDlg::Create(wxWindow* parent,
 //
 void ChoosePlaneDlg::Init()
 {
-  mPointX = 0.0;
-  mPointY = 0.0;
-  mPointZ = 0.0;
-  mDirX = 1.0;
-  mDirY = 0.0;
-  mDirZ = 0.0;
+  mPointX = sPointX;
+  mPointY = sPointY;
+  mPointZ = sPointZ;
+  mDirX = sDirX;
+  mDirY = sDirY;
+  mDirZ = sDirZ;
+  mGridh = sGridh;
+  mComponent = sComponent;
 }
 //
 //	CreateControls builds the guts of the dialog and connects the
@@ -125,6 +143,7 @@ void ChoosePlaneDlg::CreateControls()
     wxT("Bx"),
     wxT("By"),
     wxT("Bz"),
+    wxT("Br"),
     wxT("|B|")
   };
 	//
@@ -256,6 +275,7 @@ void ChoosePlaneDlg::CreateControls()
                                  WXSIZEOF(viewStrings),
                                  viewStrings,
                                  0);
+  vChoice->SetSelection(mComponent);
 	wxBoxSizer* boxc = new wxBoxSizer(wxHORIZONTAL);
   boxc->Add(boxg, wxALIGN_LEFT);
 	boxc->Add(100, 5, 1, wxALIGN_CENTER_HORIZONTAL | wxEXPAND, 0); // Spacer
@@ -306,6 +326,9 @@ Point3D ChoosePlaneDlg::GetPosition(void)
 	} else {
 		mPointZ = 0.0;
 	}
+  sPointX = mPointX;
+  sPointY = mPointY;
+  sPointZ = mPointZ;
   return Point3D(mPointX, mPointY, mPointZ);
 }
 
@@ -327,11 +350,15 @@ Vector3D ChoosePlaneDlg::GetDirection(void)
 	} else {
 		mDirZ = 0.0;
 	}
+  sDirX = mDirX;
+  sDirY = mDirY;
+  sDirZ = mDirZ;
   return Vector3D(mDirX, mDirY, mDirZ);
 }
 
 int ChoosePlaneDlg::GetType(void)
 {
+  sComponent = mComponent;
   return mComponent;
 }
 
@@ -343,6 +370,7 @@ float ChoosePlaneDlg::GetGridH(void)
 	} else {
 		mGridh = 0.1;
 	}
+  sGridh = mGridh;
   return mGridh;
 }
 

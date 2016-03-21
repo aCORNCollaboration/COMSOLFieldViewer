@@ -8,6 +8,8 @@
  *  Converted frm SoundTool:AddSinDlg BCollett 2/26/14
  *  Created by Brian Collett on 6/28/13.
  *  Copyright 2013 Brian Collett. All rights reserved.
+ *  BCollett 8/10/15 Add persistent dialog entries and radial
+ *  field component.
  *
  */
 #ifndef ChoosePlaneDlg_H
@@ -26,6 +28,20 @@ class ChoosePlaneDlg : public wxDialog {
 	DECLARE_CLASS( ChoosePlaneDlg );
 	DECLARE_EVENT_TABLE()
 protected:
+  //
+  /////////////////////////  CLASS VARS  ///////////////////
+  //
+  //  We store the previous versions of the instance vars in class
+  //  vars because new calls are almost always very like old ones.
+  //
+  static float sPointX;
+  static float sPointY;
+  static float sPointZ;
+  static float sDirX;
+  static float sDirY;
+  static float sDirZ;
+  static float sGridh;
+  static int sComponent;
   //
   ///////////////////////// INSTANCE VARS///////////////////
   //
