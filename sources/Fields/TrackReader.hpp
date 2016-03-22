@@ -16,6 +16,17 @@
 #include <stdio.h>
 #include "GeometricObjects.h"
 
+//
+//  Our magic number.
+//
+extern uint32_t gBTrackMagic;
+
+struct BL3TrackHeader {
+  uint32_t mMagic;
+  uint32_t mNPoint;
+  uint32_t mPointSize;
+};
+
 class TrackReader
 {
 protected:
@@ -27,6 +38,10 @@ public:
   //  Buld ourselves from a text file.
   //
  bool LoadFromTextFile(FILE* ifp);
+  //
+  //  Buld ourselves from a binary file.
+  //
+  bool LoadFromBinaryFile(FILE* ifp);
   //
   PolyLine3D* GetLine() { return mLine; };
 };

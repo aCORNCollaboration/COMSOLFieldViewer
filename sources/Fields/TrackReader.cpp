@@ -13,6 +13,9 @@
 #include <string.h>
 
 #include "TrackReader.hpp"
+
+static int sLineNum = 0;
+
 TrackReader::TrackReader() : mLine(nullptr)
 {
   
@@ -28,7 +31,6 @@ bool TrackReader::LoadFromTextFile(FILE* ifp)
 {
   char LineBuff[256];
   int nPoint;
-  static int sLineNum = 0;
   //
   //  First line should be N:<num points>
   //
@@ -101,3 +103,74 @@ bool TrackReader::LoadFromTextFile(FILE* ifp)
   mLine->Update();
   return true;
 }
+//
+//  Buld ourselves from a binary file.
+//  We read a chunk consisting of a short header followed by a block
+//  of position data. The header tells us how much data to read.
+//
+//
+//  Our magic number.
+//
+uint32_t gBTrackMagic = 'Trak';
+
+bool TrackReader::LoadFromBinaryFile(FILE* ifp)
+{
+  BL3TrackHeader head;
+  size_t nRead = fread(&head, sizeof(BL3TrackHeader), 1, ifp);
+  if (nRead != 1) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile read header failed.\n");
+    return false;
+  }
+  if (head.mMagic  != gBTrackMagic) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile gMagic failed.\n");
+    return false;
+  }
+  if (head.mPointSize != 3 * sizeof(float)) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile wrong size data.\n");
+    return false;
+  }
+  int nPoint = head.mNPoint;
+  float* coords = new float[nPoint * 3];
+  if (nullptr == coords) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile can't alloc coords.\n");
+    return false;
+  }
+  mLine = new PolyLine3D(nPoint+2);
+  if (nullptr == mLine) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile can't alloc PLine.\n");
+    return false;
+  }
+  switch (sLineNum % 3) {
+    case 0:
+      mLine->SetColor(1.0, 0.0, 0.0);
+      break;
+      
+    case 1:
+      mLine->SetColor(0.0, 1.0, 1.0);
+      break;
+      
+    case 2:
+      mLine->SetColor(1.0, 1.0, 0.0);
+      break;
+      
+    default:
+      break;
+  }
+  nRead = fread(coords, sizeof(float), nPoint * 3, ifp);
+  if (nRead != nPoint * 3) {
+    fprintf(stderr, "TrackReader::LoadFromBinaryFile read data failed.\n");
+    return false;
+  }
+/*  for (int pt = 0; pt < nPoint; pt++) {
+    fprintf(stdout, "%g %g %g\n", coords[3*pt + 0], coords[3*pt + 1], coords[3*pt + 2]);
+  }*/
+  fprintf(stdout, "\n");
+  for (int point = 0; point < nPoint; point++) {
+    mLine->Add(Point3D(&coords[point * 3]));
+  }
+  mLine->Update();
+//  delete[] coords;
+  sLineNum++;
+  return true;
+}
+

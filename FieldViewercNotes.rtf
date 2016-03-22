@@ -1073,7 +1073,7 @@ committed them.\
 \
 I now have a FieldViewerXCode directory that contains all the Xcode\
 project stuff for the viewer and a separate COMSOLFieldViewer repository.\
-This is not the best organization but it will work for now. Retweak the\
+This is not the best organization but it will work for now. Re-tweak the\
 Xcode project so that it can find everything again.\
 \
 3/21/16\
@@ -1099,7 +1099,7 @@ is no way to set the view region. I really think that the view region\
 should be set by the MODEL and not by the fields anyway. I am altering\
 GLAList::Create to build a bounding box and then making CFieldViewerDoc\
 focus on the bounding box and not on the field.\
-Done! Brilliant, I can read in and visualise the geometries in a file\
+Done! Brilliant, I can read in and visualize the geometries in a file\
 without fields.\
 \
 Now I need a file with REAL tracks in it.\
@@ -1108,4 +1108,30 @@ great, long straight spirals. There are 2 that I can't seem to find \
 and don't know why. Then there is one that seems to be spiraling \
 outwards. That one is worrying.\
 Try with more steps in the tracks.\
+\
+3/22/16\
+With the step size reduced to something reasonable for this B field,\
+and thus this cyclotron frequency, I get perfectly gorgeous results.\
+Some of the tracks still suffer more than 5% shifts in the radius\
+throughout the life of the track but almost all the tracks are now\
+limited by the 40,000 slot limit of the track and the final radius\
+is enormously distant in track time from the start so these small\
+deviations are probably ignorable.\
+\
+I have committed this version of the code to GitHub.\
+\
+I have a version with binary tracks starting to work BUT it is\
+still impossibly slow. The problem is that you have to call AddPoint \
+on tens of thousands of points and that turns out to be very expensive.\
+Reading the data from the SSD is very cheap in comparison.\
+I need to find a way to load data into a PolyLine in bulk.\
+It also turns out that the data are scrambled! Something is offset\
+somewhere and all the lines are at right-angles to the cylinders!\
+They are helices but they are rotated and there are WAY too many\
+of them, as though each line is showing up in lots and lots of\
+line segments.\
+\
+Most of the problems turned up in the writer code. I now have binary\
+tracks reading correctly. They are still terribly slow due to the\
+huge numbers of calls to PolyLine3D::Add. Commit anyway.\
 }

@@ -552,7 +552,7 @@ public:
 	//
 	//	Add a new point.
 	//
-	void Add(Point3D& p);
+	void Add(const Point3D& p);
 	//
 	//	All geometries must override WriteToFile.
 	//

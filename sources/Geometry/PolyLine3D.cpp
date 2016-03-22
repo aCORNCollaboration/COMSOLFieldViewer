@@ -57,7 +57,7 @@ PolyLine3D::~PolyLine3D() {
 //
 //	Add a new point.
 //
-void PolyLine3D::Add(Point3D& p) {
+void PolyLine3D::Add(const Point3D& p) {
 	if (mNumPoint < mNumSlot-1) {
 		mPoints[mNumPoint++] = p;
 	}

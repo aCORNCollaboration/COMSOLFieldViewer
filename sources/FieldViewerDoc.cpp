@@ -235,7 +235,7 @@ bool FieldViewerDoc::Load2DField(const char* filename)
 {
   return false;
 }
-
+/*
 //
 //  LoadTracks is given a filename and tries to read that file in as
 //  a text track file from the simulator.
@@ -273,15 +273,6 @@ bool FieldViewerDoc::LoadTracks(const char* filename)
     return false;
   }
   int slot = 0;
-/*
-  PolyLine3D* dummyTrack = new PolyLine3D();
-  Point3D start(0.0, 0.0, 0.0);
-  Point3D end(1.0, 1.0, 100.0);
-  dummyTrack->Add(start);
-  dummyTrack->Add(end);
-  dummyTrack->Update();
-  mTracks[slot++] = dummyTrack;
-*/
   for ( auto it = trackList.begin(); it != trackList.end(); ++it) {
     fprintf(stderr, "Track %d has %d points.\n", slot, (*it)->mNumPoint);
     mTracks[slot++] = *it;
@@ -291,6 +282,7 @@ bool FieldViewerDoc::LoadTracks(const char* filename)
   UpdateAllViews();
   return true;
 }
+*/
 //
 //  Render the model for anyone who asks.
 //
@@ -507,7 +499,8 @@ void FieldViewerDoc::OnMenuTracksLoad(wxCommandEvent& WXUNUSED(event))
                               _("Load Tracks file"),
                               "",
                               "",
-                              "Test files (*.txt)|*.txt",
+//                              "Test files (*.txt)|*.txt",
+                              "Track files (*.bin)|*.bin",
                               wxFD_OPEN|wxFD_FILE_MUST_EXIST);
   if (openFileDialog.ShowModal() == wxID_CANCEL) {
     return;     // the user changed their mind...
@@ -652,3 +645,80 @@ void FieldViewerDoc::DoClick(GLuint names[], Point3D start, Point3D end)
   
 }
 
+//
+//  LoadTracks is given a filename and tries to read that file in as
+//  a binary track file from the simulator.
+//
+uint32_t gTrackFileHeadMagic = 0x42134213;
+
+struct TrackFileTrailer {
+  char mTag[16];
+  uint32_t mMagic;
+  uint32_t mNTrack;
+  fpos_t mDirectoryHead;
+};
+
+bool FieldViewerDoc::LoadTracks(const char* filename)
+{
+  TrackFileTrailer trail;
+  FILE* ifp = fopen(filename, "rb");
+  char directoryTag[16];
+  if (nullptr == ifp) {
+    wxLogMessage("Failed to open tracks file.");
+    return false;
+  }
+  //
+  //  Skip to the end and read the trailer.
+  //
+  fseek(ifp, -sizeof(TrackFileTrailer), SEEK_END);
+  size_t nRead = fread(&trail, sizeof(TrackFileTrailer), 1, ifp);
+  if (nRead != 1) {
+    fprintf(stderr, "FieldViewerDoc::LoadTracks read %ld of 1 trailers.\n",
+            nRead);
+    return false;
+  }
+  if (trail.mMagic != gTrackFileHeadMagic) {
+    fprintf(stderr, "FieldViewerDoc::LoadTracks magic failure %x != %x.\n",
+            trail.mMagic, gTrackFileHeadMagic);
+//    return false;
+  }
+  fprintf(stdout, "Tag: %s\n", trail.mTag);
+  //
+  //  Figure out how many tracks and get space for the directory.
+  //
+  mNTrack = trail.mNTrack;
+  fpos_t* directory = new fpos_t[mNTrack];
+  if (nullptr == directory) {
+    fprintf(stderr, "FieldViewerDoc::LoadTracks directory alloc failure.\n");
+    return false;
+  }
+  fsetpos(ifp, &trail.mDirectoryHead);
+  nRead = fread(&directoryTag, sizeof(char), 16, ifp);
+  if (nRead != 16) {
+    fprintf(stderr, "FieldViewerDoc::LoadTracks failed to read directory tag.\n");
+    return false;
+  }
+  nRead = fread(directory, sizeof(fpos_t), mNTrack, ifp);
+  if (nRead != mNTrack) {
+    fprintf(stderr, "FieldViewerDoc::LoadTracks failed to read directory.\n");
+    return false;
+  }
+  //
+  //  Have all the tracks so know there are nTrack of them.
+  //  Build arrays and copy them in.
+  //
+  mTracks = new PolyLine3D*[mNTrack];
+  TrackReader rd;
+  for (int track = 0; track < mNTrack; track++) {
+    fsetpos(ifp, &directory[track]);
+    if (!rd.LoadFromBinaryFile(ifp)) {
+      break;
+    }
+    mTracks[track] = rd.GetLine();
+  }
+  mFirstTrack = 0;
+  mLastTrack = mNTrack;
+  UpdateAllViews();
+  fclose(ifp);
+  return true;
+}
