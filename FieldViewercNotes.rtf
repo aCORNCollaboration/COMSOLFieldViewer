@@ -1088,5 +1088,24 @@ Most bugs that remain are in wx's any.h and not something I can fix.\
 System builds and works just fine.\
 \
 Check in again.\
+Created a new branch called WithTracks.\
 \
+I am adding the ability to load in particle tracks from the simulator!\
+Start by adding tracks menu to system when have a detector loaded.\
+\
+I have actually built a system to load a tracks file into the viewer\
+quite simply. The problem at the moment is that without fields there\
+is no way to set the view region. I really think that the view region\
+should be set by the MODEL and not by the fields anyway. I am altering\
+GLAList::Create to build a bounding box and then making CFieldViewerDoc\
+focus on the bounding box and not on the field.\
+Done! Brilliant, I can read in and visualise the geometries in a file\
+without fields.\
+\
+Now I need a file with REAL tracks in it.\
+I have tracks files working with lots of tracks and they mostly look \
+great, long straight spirals. There are 2 that I can't seem to find \
+and don't know why. Then there is one that seems to be spiraling \
+outwards. That one is worrying.\
+Try with more steps in the tracks.\
 }

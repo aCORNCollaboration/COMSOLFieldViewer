@@ -78,6 +78,7 @@ public:
   //
   wxMenu *mFileMenu;
   wxMenu *mToolMenu;
+  wxMenu *mTracksMenu;
   wxMenu *mHelpMenu;
   wxMenuBar *mMenuBar;
   wxStatusBar *mStatusBar;

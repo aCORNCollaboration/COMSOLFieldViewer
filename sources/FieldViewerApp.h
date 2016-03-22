@@ -83,6 +83,7 @@ enum {
   bcID_FIELD_R1,
   bcID_FIELD_R2,
   bcID_FIELD_R3,
+  bcID_TRACKS_LOAD,
   bcID_CHOOSE_PLANE,
   bcID_CHOOSE_PLANEZ,
   bcID_PX,

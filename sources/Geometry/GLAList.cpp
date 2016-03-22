@@ -46,7 +46,7 @@
 #include "../Scanner/CTextScanner.h"
 
 #ifdef DEBUG
-#undef DEBUG
+//#undef DEBUG
 #endif
 
 #ifdef DEBUG
@@ -452,7 +452,9 @@ wxLogMessage("Need at least 9 args for triangle (3 points).\r\n");
 //  a cylinder.
 //
 bool CGLAList::BuildCylinder(int nArg) {
-  if (nArg >= 3) {
+  if (nArg < 3) {
+    wxLogMessage("Need at least 3 args for cylinder.\r\n");
+  } else if (nArg < 6) {
     //
     //  This one is not too bad because it builds its cylinder
     //  with the axis along z.
@@ -468,14 +470,22 @@ bool CGLAList::BuildCylinder(int nArg) {
 //    }
     gluCylinder(glq, radius, radius, top - bottom, 20, 20);
     glPopMatrix();
-  } else if (nArg >= 6) {
+    //
+    //  Add to the bounding box.
+    //
+    Point3D botMin(-radius, -radius, bottom);
+    Point3D topMin(-radius, -radius, top);
+    Vector3D diag(2*radius, 2*radius, 0.0);
+    mBounds->AddPoint(botMin);
+    mBounds->AddPoint(botMin+diag);
+    mBounds->AddPoint(topMin);
+    mBounds->AddPoint(topMin+diag);
+  } else {
     //
     //  This is more complex because it has to re-orient the
     //  axis. Actually it re-orients the coordinates and builds
     //  the cylinder along the new z.
     //
-	}else {
-    wxLogMessage("Need at least 3 args for cylinder.\r\n");
 	}
 	return false;
 }

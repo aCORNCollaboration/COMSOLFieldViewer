@@ -126,7 +126,7 @@ void GLViewerCanvas::GetSize(wxSize& theSize)
 //  We adjust the object rotation matrix to put the z axis of
 //  the frame vertical.
 //
-void GLViewerCanvas::FocusOn(Frame3D* box, bool keepCenter)
+void GLViewerCanvas::FocusOn(const Frame3D* box, bool keepCenter)
 {
   //
   //  Start by getting the scale and thus the camera distance.

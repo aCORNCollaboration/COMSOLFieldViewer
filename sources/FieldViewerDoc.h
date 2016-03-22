@@ -46,6 +46,13 @@ private:
   Listable mFViewBase;
   Listable mFViewEnd;
   //
+  //  Array of tracks.
+  //
+  int mNTrack;
+  PolyLine3D** mTracks;
+  int mFirstTrack;
+  int mLastTrack;
+  //
   //  One field can be 'selected' at any time.
   //
   Listable* mCurrentField;
@@ -85,6 +92,7 @@ public:
   void OnMenuFieldR1(wxCommandEvent& WXUNUSED(event));
   void OnMenuFieldR2(wxCommandEvent& WXUNUSED(event));
   void OnMenuFieldR3(wxCommandEvent& WXUNUSED(event));
+  void OnMenuTracksLoad(wxCommandEvent& WXUNUSED(event));
   
   //
   //  OnChoosePlane allows the user to select a plane on which to render a
@@ -118,6 +126,11 @@ protected:
   //  LoadField2D is the same for a 2D field.
   //
   virtual bool Load2DField(const char* filename);
+  //
+  //  LoadTracks is given a filename and tries to read that file in as
+  //  a text track file.
+  //
+  virtual bool LoadTracks(const char* filename);
   //
   //  Helper to maintain current field.
   //  Return previous current field.

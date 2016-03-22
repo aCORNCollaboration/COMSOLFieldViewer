@@ -61,7 +61,7 @@ public:
   //
   //  Pass-thru to canvas.
   //
-  void FocusOn(Frame3D* box, bool keep) { mGLWind->FocusOn(box, keep); };
+  void FocusOn(const Frame3D* box, bool keep) { mGLWind->FocusOn(box, keep); };
 private:
   //
   //  First the info to allow us to be created by the doc manager.

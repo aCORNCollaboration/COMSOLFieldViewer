@@ -40,6 +40,7 @@
 #endif
 
 #include <stdio.h>
+#include <list>
 
 #include "FieldViewerDoc.h"
 #include "GLViewerView.h"
@@ -53,6 +54,7 @@
 #include "CD3DField.h"
 #include "FieldView.h"
 #include "ReadField.h"
+#include "TrackReader.hpp"
 
 
 IMPLEMENT_DYNAMIC_CLASS(FieldViewerDoc, wxDocument)
@@ -70,6 +72,7 @@ EVT_MENU(bcID_FIELD_LOG, FieldViewerDoc::OnMenuFieldLog)
 EVT_MENU(bcID_FIELD_R1, FieldViewerDoc::OnMenuFieldR1)
 EVT_MENU(bcID_FIELD_R2, FieldViewerDoc::OnMenuFieldR2)
 EVT_MENU(bcID_FIELD_R3, FieldViewerDoc::OnMenuFieldR3)
+EVT_MENU(bcID_TRACKS_LOAD, FieldViewerDoc::OnMenuTracksLoad)
 END_EVENT_TABLE()
 
 //
@@ -79,6 +82,9 @@ FieldViewerDoc::FieldViewerDoc(void)
 {
   CGLAList::InitClass(20);
   mList = nullptr;
+  mNTrack = 0;
+  mTracks = nullptr;
+  mFirstTrack = mLastTrack = -1;
   mFieldBase.mNext = &mFieldEnd;
   mFieldBase.mPrev = nullptr;
   mFieldEnd.mPrev = &mFieldBase;
@@ -103,6 +109,11 @@ FieldViewerDoc::~FieldViewerDoc(void)
   for (Listable* f = mFViewBase.mNext; f != &mFViewEnd; f = next) {
     next = f->mNext;
     delete f;
+  }
+  if (mNTrack > 0) {
+    delete[] mTracks;
+    mTracks = nullptr;
+    mNTrack = 0;
   }
 }
 //
@@ -150,6 +161,7 @@ bool FieldViewerDoc::DoOpenDocument(const wxString& filename)
   //
   mList = new CGLAList(&scan);
   mList->Create();
+  mModelView->FocusOn(mList->GetBounds(), false);
   //
   //  Create will stop when it hits an end directive. The rest of
   //  the file should contain a description of a nested set of fields.
@@ -158,7 +170,6 @@ bool FieldViewerDoc::DoOpenDocument(const wxString& filename)
   if (ParseFieldSet(fData, ifp)) {
     CD3DField* f = new CD3DField(fData);
     mFieldBase.Append(f);
-    mModelView->FocusOn(f->GetBounds(), false);
     UpdateAllViews();
   } else {
     wxLogMessage("Attempt to load model fields failed.");
@@ -226,6 +237,61 @@ bool FieldViewerDoc::Load2DField(const char* filename)
 }
 
 //
+//  LoadTracks is given a filename and tries to read that file in as
+//  a text track file from the simulator.
+//
+bool FieldViewerDoc::LoadTracks(const char* filename)
+{
+  char LineBuffer[256];
+  std::list<PolyLine3D*> trackList;
+  FILE* ifp = fopen(filename, "rt");
+  if (nullptr == ifp) {
+    wxLogMessage("Failed to open tracks file.");
+    return false;
+  }
+  fgets(LineBuffer, 255, ifp);
+  if (strncmp(LineBuffer, "NPoint", 6) != 0) {
+    wxLogMessage("File is not a Tracks file.");
+    fclose(ifp);
+    return false;
+  }
+  while (true) {
+    TrackReader rd;
+    if (!rd.LoadFromTextFile(ifp)) {
+      break;
+    }
+    mNTrack++;
+    trackList.push_back(rd.GetLine());
+  }
+  fclose(ifp);
+  //
+  //  Have all the tracks so know there are nTrack of them.
+  //  Build arrays and copy them in.
+  //
+  mTracks = new PolyLine3D*[mNTrack];
+  if (nullptr == mTracks) {
+    return false;
+  }
+  int slot = 0;
+/*
+  PolyLine3D* dummyTrack = new PolyLine3D();
+  Point3D start(0.0, 0.0, 0.0);
+  Point3D end(1.0, 1.0, 100.0);
+  dummyTrack->Add(start);
+  dummyTrack->Add(end);
+  dummyTrack->Update();
+  mTracks[slot++] = dummyTrack;
+*/
+  for ( auto it = trackList.begin(); it != trackList.end(); ++it) {
+    fprintf(stderr, "Track %d has %d points.\n", slot, (*it)->mNumPoint);
+    mTracks[slot++] = *it;
+  }
+  mFirstTrack = 0;
+  mLastTrack = mNTrack;
+  UpdateAllViews();
+  return true;
+}
+//
 //  Render the model for anyone who asks.
 //
 void FieldViewerDoc::Render(bool picking)
@@ -252,6 +318,12 @@ void FieldViewerDoc::Render(bool picking)
       }
       v->Draw();
     }
+  }
+  //
+  //  Show tracks.
+  //
+  for (int i = mFirstTrack; i < mLastTrack; i++) {
+    mTracks[i]->Draw();
   }
 }
 //
@@ -426,6 +498,31 @@ void FieldViewerDoc::OnMenuFieldR3(wxCommandEvent& WXUNUSED(event))
   UpdateAllViews();
 }
 
+void FieldViewerDoc::OnMenuTracksLoad(wxCommandEvent& WXUNUSED(event))
+{
+  //
+  //  We need to bring up a file loading dialog.
+  //
+  wxFileDialog openFileDialog(mModelView->mFrame,
+                              _("Load Tracks file"),
+                              "",
+                              "",
+                              "Test files (*.txt)|*.txt",
+                              wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+  if (openFileDialog.ShowModal() == wxID_CANCEL) {
+    return;     // the user changed their mind...
+  }
+  //
+  //  All is well. Let's try this thing.
+  //  Hide the dialog first though.
+  //
+  openFileDialog.Show(0);
+  if (!LoadTracks(openFileDialog.GetPath())) {
+    wxMessageBox("Unable to open tracks file.");
+    return;
+  }
+
+}
 //
 //  These are dialog helpers. They run dialogs and extract their imformation
 //  so that the main dialog method can do its work _after_ the dialog box

@@ -126,15 +126,15 @@ bool GLViewerFrame::Create(const wxDocument* doc,
   // Build and install the "Tool" menu
   //
   mToolMenu = new wxMenu;
-  mToolMenu->AppendCheckItem(bcID_TOOL_PTR, wxT("&Ptr"),
+  mToolMenu->AppendCheckItem(bcID_TOOL_PTR, wxT("&Ptr\tCtrl-R"),
                              wxT("Pointer tool"));
-  mToolMenu->AppendCheckItem(bcID_TOOL_SPIN, wxT("&Spin"),
+  mToolMenu->AppendCheckItem(bcID_TOOL_SPIN, wxT("&Spin\tCtrl-P"),
                              wxT("Spin tool"));
-  mToolMenu->AppendCheckItem(bcID_TOOL_PAN, wxT("&Pan"),
+  mToolMenu->AppendCheckItem(bcID_TOOL_PAN, wxT("&Pan\tCtrl-A"),
                              wxT("Pan tool"));
-  mToolMenu->AppendCheckItem(bcID_TOOL_DOLLY, wxT("&Dolly"),
+  mToolMenu->AppendCheckItem(bcID_TOOL_DOLLY, wxT("&Dolly\tCtrl-D"),
                              wxT("Dolly tool"));
-  mToolMenu->AppendCheckItem(bcID_TOOL_ZOOM, wxT("&Zoom"),
+  mToolMenu->AppendCheckItem(bcID_TOOL_ZOOM, wxT("&Zoom\tCtrl-Z"),
                              wxT("Zoom tool"));
   mToolMenu->AppendCheckItem(bcID_TOOL_REGION, wxT("Se&lect"),
                              wxT("Select region tool"));
@@ -144,6 +144,11 @@ bool GLViewerFrame::Create(const wxDocument* doc,
   mToolMenu->Check(bcID_TOOL_DOLLY, false);
   mToolMenu->Check(bcID_TOOL_ZOOM, false);
   mToolMenu->Check(bcID_TOOL_REGION, false);
+  //
+  // Build and install the "Tracks" menu
+  //
+  mTracksMenu = new wxMenu;
+  mTracksMenu->Append(bcID_TRACKS_LOAD, wxT("&Load tracks...\tCtrl-L"));
   //
   // Make the "Help" menu
   //
@@ -155,6 +160,7 @@ bool GLViewerFrame::Create(const wxDocument* doc,
   mMenuBar = new wxMenuBar;
   mMenuBar->Append(mFileMenu, wxT("&File"));
   mMenuBar->Append(mToolMenu, wxT("&Tool"));
+  mMenuBar->Append(mTracksMenu, wxT("&Tracks"));
   mMenuBar->Append(mHelpMenu, wxT("&Help"));
   
   SetMenuBar(mMenuBar);

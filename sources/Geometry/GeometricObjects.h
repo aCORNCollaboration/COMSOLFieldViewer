@@ -158,7 +158,7 @@ public:
 	//	override and use some more complex method of
 	//	computing the bounds.
 	//
-	virtual Frame3D* GetBounds() { return mBounds; };
+	virtual const Frame3D* GetBounds() { return mBounds; };
 	//
 	//	Start and stop building list.
 	//

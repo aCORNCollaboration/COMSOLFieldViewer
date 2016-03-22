@@ -135,8 +135,8 @@ public:
   //  a Frame3D but add a flag that tells us whether to keep the
   //  view region centred on the origin.
   //
-  virtual void FocusOn(Frame3D* box, bool keepCenter = true);
-  virtual void FocusOn(Frame3D& box, bool keepCenter = true) { \
+  virtual void FocusOn(const Frame3D* box, bool keepCenter = true);
+  virtual void FocusOn(const Frame3D& box, bool keepCenter = true) { \
     FocusOn(&box, keepCenter); };
   //
   //  And ones to affect the tool itself.
