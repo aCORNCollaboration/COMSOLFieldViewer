@@ -144,6 +144,10 @@ long GeometryObject::AddFlags(long f) {
  *	RunMaterial is a helper for the Update routines. It outputs
  *	the material properties in OpenGL form.
  */
+#define mRed _m._c.red
+#define mGreen _m._c.green
+#define mBlue _m._c.blue
+#define mComponents _m._comps
 void GeometryObject::RunMaterial() {
 	GLfloat a[4];
 	a[0] = mColor.mRed * mMaterial[0];

@@ -78,74 +78,74 @@ Lexeme *CTextScanner::NextLex()
 	char *tokp = TokenBuff;		// build tokens here
 	unsigned char nChar;			// counts number of chars in a string/word
 	double fVal = 0.0,				// denominator fractional part of a number
-  fScale = 1.0,             // numerator of fraction part of number
-  dVal = 0.0,               // Complete value of a number
-  exponent = 0.0,           // Exponent of a number
-  eSign = 1.0;              // Sign of exponent
+	fScale = 1.0,             // numerator of fraction part of number
+	dVal = 0.0,               // Complete value of a number
+	exponent = 0.0,           // Exponent of a number
+	eSign = 1.0;              // Sign of exponent
 	short neg = false,				// tells us to change sign of a number
-  isInteger = true;         // tells us if number is an integer
-  /*
-   *	First see if we can just return the old one else make sure 
-   *  PushedBack is FALSE.
-   */
+	isInteger = true;         // tells us if number is an integer
+	/*
+	*	First see if we can just return the old one else make sure 
+	*  PushedBack is FALSE.
+	*/
 	if (pushedBack) {
 		pushedBack = false;			// Must remember to clear the flag whatever happens!
 		return &currLex;
-  }
+	}
 	pushedBack = false;
-  /*
-   *	Initialise the global error number to no error and start a gigantic 
-   *  loop that practically never gets executed. It is there to catch things 
-   *  like comments and escaped end-of-line's that are totally ignored. 
-   *  All real sybols exit the loop by direct return.
-   */
+	/*
+	*	Initialise the global error number to no error and start a gigantic 
+	*  loop that practically never gets executed. It is there to catch things 
+	*  like comments and escaped end-of-line's that are totally ignored. 
+	*  All real sybols exit the loop by direct return.
+	*/
 	currLex.lex = LError;			// Default response for if nothing better happens
 	while (true) {
 		mBase = 10;						// default numbers to decimal
-    /*
-     *	First skip white space.
-     */
+		/*
+		*	First skip white space.
+		*/
 		while ((cc = CharClass[(ch = NextChar())]) == LSpace) {
-		}
-    /*
-     *	Now work your way through the non-space chars. Test for primitives 
-     *  because they are treated separately. Anything else goes into the 
-     *  big case.
-     *	Note, we mask off the top bit that marks word letters before 
-     *  checking for prims.
-     */
+			}
+		/*
+		*	Now work your way through the non-space chars. Test for primitives 
+		*  because they are treated separately. Anything else goes into the 
+		*  big case.
+		*	Note, we mask off the top bit that marks word letters before 
+		*  checking for prims.
+		*/
 		if ((cc & 0x3F) < LPrimStart) {
 			switch (cc & 0x3F) {
-          /*
-           *	First catch the ending things.
-           */
+				/*
+				*	First catch the ending things.
+				*/
 				case LEndFile:currLex.lex = LEof;
-          return &currLex;
+		        	return &currLex;
           
 				case LNewLine:currLex.lex = LNewLine;
-          return &currLex;
-          /*
-           *	Then try for a word. Words must begin with a letter and must
-           *	contain letters, digits, or underscores.
-           *	Words are first built into the longest possible token and 
-           *  then looked up in the symbol table.
-           */
+          			return &currLex;
+				/*
+				*	Then try for a word. Words must begin with a letter and must
+				*	contain letters, digits, or underscores.
+				*	Words are first built into the longest possible token and 
+				*  then looked up in the symbol table.
+				*/
 				case LAlpha:
 					*tokp++ = toupper(ch);		// Put first char into word
 					nChar = 1;
 					while (CharClass[ch = NextChar()] & LAlphaBit) {
 						*tokp++ = toupper(ch);
 						++nChar;
-          }
+			        }
 					*tokp = 0;
 					BackUp();						// Return the unused char
 					currLex.lex = LWord;
 					currLex.sVal = TokenBuff;
 					return &currLex;
-          /*
-           *	Before numbers and .'s need to check up on a '-' 
-           *  because it could begin a negative number!
-           */
+				/*
+				*	Before numbers and .'s need to check up on a '-' 
+				*  because it could begin a negative number!
+				*/
 				case LMinus:
 #ifdef WantNegatives
 					ch = Peek();
@@ -153,7 +153,7 @@ Lexeme *CTextScanner::NextLex()
 						ch = NextChar();
 						neg = true;
 						goto StartNum;
-          }
+			        }
 					else if (ch == '.') {
 						ch = NextChar();      // that read the '.'
 						ch = Peek();          // and that looked ahead still further
@@ -172,26 +172,26 @@ Lexeme *CTextScanner::NextLex()
 #endif
 						currLex.lex = LMinus;
 					return &currLex;
-          /*
-           *	Before I do numbers let me do '.'s. This nasty code 
-           *  allows the user to type a number like .35 with no leading
-           *  digits.
-           */
+				/*
+				*	Before I do numbers let me do '.'s. This nasty code 
+				*  allows the user to type a number like .35 with no leading
+				*  digits.
+				*/
 #ifdef WantReals
 				case LPeriod:ch = Peek();		// Rare enough not to NextChar
-          if (ch >= '0' && ch <= '9') {
-            ch = NextChar();
-            goto HavePeriod;
-          }
-          else {
-            currLex.lex = LError;
-            currLex.sVal = "Found an unexpected period.";
-          }
-          break;
+					if (ch >= '0' && ch <= '9') {
+						ch = NextChar();
+						goto HavePeriod;
+					}
+					else {
+						currLex.lex = LError;
+						currLex.sVal = "Found an unexpected period.";
+					}
+		          break;
 #endif
-          /*
-           *	Hex numbers starting with a '$' can optionally be recognised.
-           */
+				/*
+				*	Hex numbers starting with a '$' can optionally be recognised.
+				*/
 #ifdef WantHex
 				case LDollar:
 					if (CharClass[ch = NextChar()] != LDollar) {
@@ -203,12 +203,12 @@ Lexeme *CTextScanner::NextLex()
 					//
 					mBase = 16;
 #endif
-          /*
-           *	Numbers can only begin with digits but have a fairly complex 
-           *  structure once they get started. I convert them into values 
-           *  as I go. Note that tests in inner loops are all with CDigit, 
-           *  the code WITH the 0x*0 bit set since it has not been stripped.
-           */
+				/*
+				*	Numbers can only begin with digits but have a fairly complex 
+				*  structure once they get started. I convert them into values 
+				*  as I go. Note that tests in inner loops are all with CDigit, 
+				*  the code WITH the 0x*0 bit set since it has not been stripped.
+				*/
 				case LDigit:
         StartNum:
 					dVal = DigitValue(ch);		// Start accumulating the number
@@ -218,7 +218,7 @@ Lexeme *CTextScanner::NextLex()
 					}
 #ifdef WantReals
 					if (ch == '.' && Peek() != '.') {		// Do fractional part
-          HavePeriod:
+        HavePeriod:
 						isInteger = false;
 						while (IsDigit(ch = NextChar())) {
 							fVal *= mBase;

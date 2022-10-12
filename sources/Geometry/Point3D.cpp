@@ -8,7 +8,7 @@
  *
  */
 #include <math.h>
-#include "Geometry3D.h"
+#include "Geometry3d.h"
 
 /*
  *  Point equality is controlled by class variables.

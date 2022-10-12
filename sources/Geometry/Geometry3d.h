@@ -80,10 +80,10 @@ public:
 //
 //	Accessor macros for the components.
 //
-#define mRed _m._c.red
-#define mGreen _m._c.green
-#define mBlue _m._c.blue
-#define mComponents _m._comps
+//#define mRed _m._c.red
+//#define mGreen _m._c.green
+//#define mBlue _m._c.blue
+//#define mComponents _m._comps
 
 class Vector3D;
 /*

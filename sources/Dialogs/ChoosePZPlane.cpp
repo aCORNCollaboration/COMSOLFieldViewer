@@ -233,8 +233,8 @@ void ChoosePZPlaneDlg::CreateControls()
                                           wxDefaultSize,
                                           0);
 	wxBoxSizer* boxx = new wxBoxSizer(wxHORIZONTAL);
-  boxx->Add(xLabel, wxALIGN_LEFT);
-  boxx->Add(dxBox, wxALIGN_RIGHT);
+  boxx->Add(xLabel, 0);
+  boxx->Add(dxBox, 0);
   wxStaticText* zMinLabel = new wxStaticText(this,
                                           wxID_STATIC,
                                           wxT("Min Z"),
@@ -249,8 +249,8 @@ void ChoosePZPlaneDlg::CreateControls()
                                      wxTE_RIGHT,
                                      wxTextValidator(wxFILTER_NUMERIC, mMinZStr));
   wxBoxSizer* boxzmin = new wxBoxSizer(wxHORIZONTAL);
-  boxzmin->Add(zMinLabel, wxALIGN_LEFT);
-  boxzmin->Add(zMinBox, wxALIGN_RIGHT);
+  boxzmin->Add(zMinLabel, 0);
+  boxzmin->Add(zMinBox, 0);
   wxStaticText* zMaxLabel = new wxStaticText(this,
                                              wxID_STATIC,
                                              wxT("Max Z"),
@@ -265,8 +265,8 @@ void ChoosePZPlaneDlg::CreateControls()
                                      wxTE_RIGHT,
                                      wxTextValidator(wxFILTER_NUMERIC, mMaxZStr));
   wxBoxSizer* boxzmax = new wxBoxSizer(wxHORIZONTAL);
-  boxzmax->Add(zMaxLabel, wxALIGN_LEFT);
-  boxzmax->Add(zMaxBox, wxALIGN_RIGHT);
+  boxzmax->Add(zMaxLabel, 0);
+  boxzmax->Add(zMaxBox, 0);
 	wxBoxSizer* boxd = new wxBoxSizer(wxVERTICAL);
 	boxd->Add(labeld, 0, wxALIGN_LEFT | wxALL, 5);
 	boxd->Add(5, 5, 1, wxALIGN_CENTER_HORIZONTAL, 0); // Spacer
@@ -304,8 +304,8 @@ void ChoosePZPlaneDlg::CreateControls()
                                           0);
   //
   wxBoxSizer* boxv1 = new wxBoxSizer(wxHORIZONTAL);
-  boxv1->Add(vMaxLabel, wxALIGN_LEFT);
-  boxv1->Add(vMaxBox, wxALIGN_RIGHT);
+  boxv1->Add(vMaxLabel, 0);
+  boxv1->Add(vMaxBox, 0);
   //
   wxStaticText* vMinLabel = new wxStaticText(this,
                                              wxID_STATIC,
@@ -321,8 +321,8 @@ void ChoosePZPlaneDlg::CreateControls()
                                      wxTE_RIGHT,
                                      wxTextValidator(wxFILTER_NUMERIC, mMinVStr));
   wxBoxSizer* boxv2 = new wxBoxSizer(wxHORIZONTAL);
-  boxv2->Add(vMinLabel, wxALIGN_LEFT);
-  boxv2->Add(vMinBox, wxALIGN_RIGHT);
+  boxv2->Add(vMinLabel, 0);
+  boxv2->Add(vMinBox, 0);
   //
   wxBoxSizer* boxv = new wxBoxSizer(wxVERTICAL);
   boxv->Add(mSetRangeCheck, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -333,9 +333,9 @@ void ChoosePZPlaneDlg::CreateControls()
 	//	Put into a horizontal sizer.
 	//
 	wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
-	box1->Add(boxp, 1, wxALIGN_LEFT | wxALL, 0);
+	box1->Add(boxp, 1, wxALL, 0);
 //	box1->Add(5, 5, 1, wxALIGN_CENTER_VERTICAL | wxALL, 0);
-	box1->Add(boxd, 1, wxALIGN_CENTRE_HORIZONTAL | wxALL, 0);
+	box1->Add(boxd, 1, wxALL, 0);
 //  box1->Add(5, 5, 1, wxALIGN_CENTER_VERTICAL | wxALL, 0);
   box1->Add(boxv, 1, wxALIGN_TOP | wxALL, 0);
   //	box1->Add(boxp, 1, wxALIGN_BOTTOM | wxALL, 10);
@@ -356,8 +356,9 @@ void ChoosePZPlaneDlg::CreateControls()
                                           wxDefaultSize,
                                           0);
 	wxBoxSizer* boxg = new wxBoxSizer(wxHORIZONTAL);
-  boxg->Add(gLabel, wxALIGN_LEFT);
-  boxg->Add(gridBox, wxALIGN_RIGHT);
+  boxg->Add(20,5);
+  boxg->Add(gLabel, 0);
+  boxg->Add(gridBox, 0);
   //
   //  Choice of field to plot.
   //
@@ -370,9 +371,9 @@ void ChoosePZPlaneDlg::CreateControls()
                                    0);
   vChoice->SetSelection(mComponent);
 	wxBoxSizer* boxc = new wxBoxSizer(wxHORIZONTAL);
-  boxc->Add(boxg, wxALIGN_LEFT);
-	boxc->Add(100, 5, 1, wxALIGN_CENTER_HORIZONTAL | wxEXPAND, 0); // Spacer
-  boxc->Add(vChoice, wxALIGN_RIGHT);
+  boxc->Add(boxg, 0);
+	boxc->Add(100, 5, 1, wxEXPAND, 0); // Spacer
+  boxc->Add(vChoice, 0);
 	//
 	//	Wrap that all in an outer sizer
 	//
@@ -389,7 +390,7 @@ void ChoosePZPlaneDlg::CreateControls()
                                         wxDefaultSize,
                                         wxLI_HORIZONTAL);
   box2->Add(sep, 0, wxGROW | wxALL);
-  box2->Add(boxc, 0, wxALIGN_CENTER_VERTICAL);
+  box2->Add(boxc, 0, 0);
   box2->Add(sep2, 0, wxGROW | wxALL);
 	box2->Add(CreateButtonSizer(wxOK | wxCANCEL), wxALIGN_BOTTOM | wxALL, 10);
   //

@@ -8,6 +8,12 @@
 *	BCollett 10/1/2003 based on GeometryHelpers.
 */
 #include "Geometry3d.h"
+
+#define mRed _m._c.red
+#define mGreen _m._c.green
+#define mBlue _m._c.blue
+#define mComponents _m._comps
+
 /*
 *	A color is very simple.
 *	Constructors, including copy.

@@ -19,10 +19,9 @@
 //	I first need  the trackball implementation from the Penguin sample to
 //	provide a spin control for the viewer.
 //
-//extern "C"
-//{
+extern "C" {
 #include "trackball.h"
-//}
+}
 //
 //  Then the implementation methods.
 //

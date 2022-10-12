@@ -8,7 +8,7 @@
 *
 *	Brian Collett 10/1/2003 based on GeomtryHelpers.
 */
-#include "Types.h"
+#include "assert.h"
 #include <math.h>
 #include "Geometry2D.h"
 
@@ -311,8 +311,8 @@ Frame2D::Frame2D(const Point2D& startPoint, const Point2D& endPoint)
 //
 Frame2D& Frame2D::Set(Real xLeft, Real yBottom, Real xRight, Real yTop) 
 {
-	ASSERT(xLeft <= xRight);
-	ASSERT(yBottom <= yTop);
+	assert(xLeft <= xRight);
+	assert(yBottom <= yTop);
 	mMin.x = xLeft;
 	mMin.y = yBottom;
 	mMax.x = xRight;

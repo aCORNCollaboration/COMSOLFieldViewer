@@ -15,7 +15,7 @@
 
 #include "wx/docview.h"
 #include "wx/splitter.h"
-#include "wx/listCtrl.h"
+#include "wx/listctrl.h"
 #include "wx/glcanvas.h"
 #include "GLViewerFrame.h"
 #include "GLViewerCanvas.h"

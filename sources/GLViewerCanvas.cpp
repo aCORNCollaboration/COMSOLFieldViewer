@@ -30,9 +30,9 @@
 
 #include "GeometricObjects.h"
 //
-//extern "C" {
+extern "C" {
 #include  "trackball.h"
-//};
+};
 
 // ---------------------------------------------------------------------------
 // GLViewerCanvas

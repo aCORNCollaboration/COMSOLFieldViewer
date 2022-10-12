@@ -216,8 +216,11 @@ void ChoosePlaneDlg::CreateControls()
                                           wxDefaultSize,
                                           0);
 	wxBoxSizer* boxx = new wxBoxSizer(wxHORIZONTAL);
-  boxx->Add(xLabel, wxALIGN_LEFT);
-  boxx->Add(dxBox, wxALIGN_RIGHT);
+//  boxx->Add(xLabel, wxALIGN_LEFT);
+//  boxx->Add(dxBox, wxALIGN_RIGHT);
+  boxx->Add(xLabel, 0);
+  boxx->Add(dxBox, 0);
+
 	wxTextCtrl* dyBox = new wxTextCtrl(this,
                                      bcID_DY,
                                      wxT("0.0"),
@@ -242,9 +245,12 @@ void ChoosePlaneDlg::CreateControls()
 	//	Put into a horizontal sizer.
 	//
 	wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
-	box1->Add(boxp, 1, wxALIGN_LEFT | wxALL, 10);
+	box1->Add(boxp, 1, wxALL, 10);
+	box1->Add(5, 5, 1, 0, 0);
+	box1->Add(boxd, 1, wxALL, 10);
+/*	box1->Add(boxp, 1, wxALIGN_LEFT | wxALL, 10);
 	box1->Add(5, 5, 1, wxALIGN_CENTER_VERTICAL | wxALL, 0);
-	box1->Add(boxd, 1, wxALIGN_RIGHT | wxALL, 10);
+	box1->Add(boxd, 1, wxALIGN_RIGHT | wxALL, 10); */
 //	box1->Add(boxp, 1, wxALIGN_BOTTOM | wxALL, 10);
   //
   //  Box with the grid size and map type entries.
@@ -263,8 +269,8 @@ void ChoosePlaneDlg::CreateControls()
                                           wxDefaultSize,
                                           0);
 	wxBoxSizer* boxg = new wxBoxSizer(wxHORIZONTAL);
-  boxg->Add(gLabel, wxALIGN_LEFT);
-  boxg->Add(gridBox, wxALIGN_RIGHT);
+  boxg->Add(gLabel, wxALL);
+  boxg->Add(gridBox, wxALL);
   //
   //  Choice of field to plot.
   //
@@ -277,14 +283,14 @@ void ChoosePlaneDlg::CreateControls()
                                  0);
   vChoice->SetSelection(mComponent);
 	wxBoxSizer* boxc = new wxBoxSizer(wxHORIZONTAL);
-  boxc->Add(boxg, wxALIGN_LEFT);
-	boxc->Add(100, 5, 1, wxALIGN_CENTER_HORIZONTAL | wxEXPAND, 0); // Spacer
-  boxc->Add(vChoice, wxALIGN_LEFT);
+  boxc->Add(boxg, wxALL);
+	boxc->Add(100, 5, 1, wxEXPAND, 0); // Spacer
+  boxc->Add(vChoice, wxALL);
 	//
 	//	Wrap that all in an outer sizer
 	//
 	wxBoxSizer* box2 = new wxBoxSizer(wxVERTICAL);
-	box2->Add(box1, 0,  wxALIGN_TOP | wxALL, 10);
+	box2->Add(box1, 0,  wxALL, 10);
   wxStaticLine* sep = new wxStaticLine(this,
                                        wxID_STATIC,
                                        wxDefaultPosition,
@@ -296,7 +302,7 @@ void ChoosePlaneDlg::CreateControls()
                                        wxDefaultSize,
                                        wxLI_HORIZONTAL);
   box2->Add(sep, 0, wxGROW | wxALL);
-  box2->Add(boxc, 0, wxALIGN_CENTER_VERTICAL);
+  box2->Add(boxc, 0, wxALL);
   box2->Add(sep2, 0, wxGROW | wxALL);
 	box2->Add(CreateButtonSizer(wxOK | wxCANCEL), wxALIGN_BOTTOM | wxALL, 10);
   //

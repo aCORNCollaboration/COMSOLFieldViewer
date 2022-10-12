@@ -41,9 +41,9 @@ Box3D::Box3D(const Box3D& b) :
         Frame3D((const Frame3D&) b), GeometryObject( kGeomBox)
 {
 #ifdef UseOpenGL
-	mColor.mRed = b.mColor.mRed;
-	mColor.mGreen = b.mColor.mGreen;
-	mColor.mBlue = b.mColor.mBlue;
+	mColor._m._c.red = b.mColor._m._c.red;
+	mColor._m._c.green = b.mColor._m._c.green;
+	mColor._m._c.blue = b.mColor._m._c.blue;
 	SetMaterials(b.mMaterial, 5);
 	mFlags = b.mFlags;
 	Update();

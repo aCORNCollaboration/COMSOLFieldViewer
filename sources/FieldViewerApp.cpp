@@ -27,9 +27,9 @@
 #error You must set wxUSE_DOC_VIEW_ARCHITECTURE to 1 in setup.h!
 #endif
 
+#include "GLViewerView.h"
 #include "FieldViewerApp.h"
 #include "FieldViewerDoc.h"
-#include "GLViewerView.h"
 
 IMPLEMENT_APP(FieldViewerApp)
 

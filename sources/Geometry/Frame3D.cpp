@@ -14,7 +14,7 @@
  */
 #include <math.h>
 #include "assert.h"
-#include "Geometry3D.h"
+#include "Geometry3d.h"
 /*
  *	Frame3D
  *

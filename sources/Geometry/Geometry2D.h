@@ -14,8 +14,8 @@
 #define Geometry2D_h
 
 #include <stdio.h>
-#include "Real.h"		// Defines the Real type
-#include "Geometry3D.h"
+//#include "Real.h"		// Defines the Real type
+#include "Geometry3d.h"
 
 class Vector2D;			// Forward ref for Point2D.
 /*
